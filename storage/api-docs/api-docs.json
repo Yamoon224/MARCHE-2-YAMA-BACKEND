@@ -1,0 +1,3024 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Marché de Yama",
+        "description": "API REST du supermarché en ligne Marché de Yama.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Serveur courant"
+        }
+    ],
+    "paths": {
+        "/api/v1/accounting/trial-balance": {
+            "get": {
+                "tags": [
+                    "Comptabilité"
+                ],
+                "summary": "Balance générale (débits, crédits et solde par compte)",
+                "operationId": "a74745b6b97bc40f14cd967497b8b806",
+                "responses": {
+                    "200": {
+                        "description": "Balance",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "accounts",
+                                        "total_debit_minor",
+                                        "total_credit_minor",
+                                        "balanced"
+                                    ],
+                                    "properties": {
+                                        "accounts": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "code",
+                                                    "name",
+                                                    "debit_minor",
+                                                    "credit_minor",
+                                                    "balance_minor"
+                                                ],
+                                                "properties": {
+                                                    "code": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "debit_minor": {
+                                                        "type": "integer"
+                                                    },
+                                                    "credit_minor": {
+                                                        "type": "integer"
+                                                    },
+                                                    "balance_minor": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total_debit_minor": {
+                                            "type": "integer"
+                                        },
+                                        "total_credit_minor": {
+                                            "type": "integer"
+                                        },
+                                        "balanced": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/products": {
+            "get": {
+                "tags": [
+                    "Catalogue"
+                ],
+                "summary": "Liste publique des produits actifs",
+                "operationId": "c4407243169fe500d167d36047b01cda",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Recherche par nom",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produits paginés",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductPage"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Catalogue"
+                ],
+                "summary": "Créer un produit",
+                "operationId": "66792ec15c881fd28d38925364435e22",
+                "responses": {
+                    "201": {
+                        "description": "Produit créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/products/{slug}": {
+            "get": {
+                "tags": [
+                    "Catalogue"
+                ],
+                "summary": "Fiche produit",
+                "operationId": "56a694711e6b05098ffed73ba7ef160d",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produit",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                }
+            }
+        },
+        "/api/v1/delivery/my-tour": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Ma tournée : livraisons affectées, en cours ou à retenter, par ordre de créneau",
+                "operationId": "3b8840863f6653acbf25aed65eca40e5",
+                "responses": {
+                    "200": {
+                        "description": "Tournée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Delivery"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries/{delivery}/start": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Partir en livraison (ou repartir après un échec)",
+                "operationId": "63f6827496c4c8caddd320ac5cd2c391",
+                "parameters": [
+                    {
+                        "name": "delivery",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Livraison démarrée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Delivery"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pas votre livraison"
+                    },
+                    "422": {
+                        "description": "État incompatible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries/{delivery}/location": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Envoyer ma position (uniquement pendant la livraison, dernière position conservée)",
+                "operationId": "a901341f92f0018001dd6e6706130083",
+                "parameters": [
+                    {
+                        "name": "delivery",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "latitude",
+                                    "longitude"
+                                ],
+                                "properties": {
+                                    "latitude": {
+                                        "type": "number"
+                                    },
+                                    "longitude": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Position enregistrée"
+                    },
+                    "422": {
+                        "description": "Livraison non en cours"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries/{delivery}/confirm": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Confirmer la remise : code du client + espèces encaissées",
+                "operationId": "e0f90238b4b34673ef5f66e709db10d7",
+                "parameters": [
+                    {
+                        "name": "delivery",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code",
+                                    "cash_collected_minor"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "482913"
+                                    },
+                                    "cash_collected_minor": {
+                                        "description": "Espèces encaissées (0 si déjà payée)",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Commande remise",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Delivery"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Code incorrect ou verrouillé, montant erroné, état incompatible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries/{delivery}/fail": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Déclarer un échec de livraison (client absent, adresse introuvable)",
+                "operationId": "6dc613491ea0e797fdb8c7c80713261e",
+                "parameters": [
+                    {
+                        "name": "delivery",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "reason"
+                                ],
+                                "properties": {
+                                    "reason": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Échec enregistré",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Delivery"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/zones": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Zones desservies",
+                "operationId": "a65c60c2818317f0b7a1e9c2a5004173",
+                "responses": {
+                    "200": {
+                        "description": "Zones actives",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DeliveryZone"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Créer une zone de livraison",
+                "operationId": "e4e9e3613f4e48d83c771a42620677b0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "fee_minor"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "fee_minor": {
+                                        "type": "integer"
+                                    },
+                                    "free_above_minor": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "min_order_minor": {
+                                        "type": "integer"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Zone créée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/DeliveryZone"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/zones/{zone}/slots": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Créneaux réservables d'une zone (places restantes, délai de préparation respecté)",
+                "operationId": "bd026ef2143e66390fdc86e0a81b7b96",
+                "parameters": [
+                    {
+                        "name": "zone",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "AAAA-MM-JJ ; sinon les 7 prochains jours",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Créneaux",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/DeliverySlot"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/delivery/slots": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Ouvrir un créneau de livraison avec sa capacité",
+                "operationId": "d411ca42b63fef15ed319b3479520e21",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "delivery_zone_id",
+                                    "starts_at",
+                                    "ends_at",
+                                    "capacity"
+                                ],
+                                "properties": {
+                                    "delivery_zone_id": {
+                                        "type": "integer"
+                                    },
+                                    "starts_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "ends_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Créneau créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/DeliverySlot"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Livraisons à traiter (prêtes, affectées, en cours, échouées par défaut)",
+                "operationId": "9cabc7e4174dbc250cf3fcc04611fb2f",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "assigned",
+                                "out_for_delivery",
+                                "delivered",
+                                "failed",
+                                "returned"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Livraisons",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Delivery"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/couriers": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Livreurs disponibles pour une affectation",
+                "operationId": "0f7dd3f211d9b343544ce0e549af4a53",
+                "responses": {
+                    "200": {
+                        "description": "Livreurs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "id",
+                                                    "name"
+                                                ],
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries/{delivery}/assign": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Confier la livraison à un livreur (ou la réaffecter avant son départ)",
+                "operationId": "64f5ff90202e977c25a5c6b791429118",
+                "parameters": [
+                    {
+                        "name": "delivery",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "courier_id"
+                                ],
+                                "properties": {
+                                    "courier_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Livraison affectée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Delivery"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Pas un livreur, ou livraison déjà partie"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries/{delivery}/return": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Retourner au magasin une livraison échouée (stock rendu, client remboursé)",
+                "operationId": "a843447311ddd6758fb01aef5badad7a",
+                "parameters": [
+                    {
+                        "name": "delivery",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "reason"
+                                ],
+                                "properties": {
+                                    "reason": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Livraison retournée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Delivery"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "La livraison n'est pas en échec"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/deliveries/{delivery}/unlock": {
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Débloquer la saisie du code de confirmation (après vérification du client)",
+                "operationId": "f2d9c7335e92df69b3ce1a0764f6226d",
+                "parameters": [
+                    {
+                        "name": "delivery",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Code débloqué",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Delivery"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/orders/{orderId}/tracking": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Suivi de livraison : statut, livreur, position en direct et code de confirmation (client uniquement)",
+                "operationId": "b967d0276d822a05d7deaf93aab623a5",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Suivi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "required": [
+                                                "status"
+                                            ],
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pending",
+                                                        "assigned",
+                                                        "out_for_delivery",
+                                                        "delivered",
+                                                        "failed",
+                                                        "returned"
+                                                    ]
+                                                },
+                                                "courier_name": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "confirmation_code": {
+                                                    "description": "Visible uniquement par le client, tant que la livraison est en cours",
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "location": {
+                                                    "properties": {
+                                                        "latitude": {
+                                                            "type": "number"
+                                                        },
+                                                        "longitude": {
+                                                            "type": "number"
+                                                        },
+                                                        "recorded_at": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Aucun suivi pour cette commande"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fulfillment/pick-lists": {
+            "get": {
+                "tags": [
+                    "Préparation"
+                ],
+                "summary": "File de préparation (ouvertes et en cours par défaut)",
+                "operationId": "2e0180317b181b2ec33e588843f837ab",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "open",
+                                "in_progress",
+                                "completed"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listes de préparation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PickList"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fulfillment/pick-lists/{pickList}": {
+            "get": {
+                "tags": [
+                    "Préparation"
+                ],
+                "summary": "Détail d'une préparation",
+                "operationId": "fe397e898e678988d7f6c8344ebf6f01",
+                "parameters": [
+                    {
+                        "name": "pickList",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste de préparation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PickList"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fulfillment/pick-lists/{pickList}/start": {
+            "post": {
+                "tags": [
+                    "Préparation"
+                ],
+                "summary": "Prendre en charge une préparation",
+                "operationId": "15b0afe209daf495cc58a471c3d4615f",
+                "parameters": [
+                    {
+                        "name": "pickList",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Préparation démarrée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PickList"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Déjà prise ou terminée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fulfillment/pick-lists/{pickList}/lines/{line}/pick": {
+            "post": {
+                "tags": [
+                    "Préparation"
+                ],
+                "summary": "Enregistrer la quantité prélevée ou pesée (0 = rupture)",
+                "operationId": "c25116d655714794bf365ac83a4e2b4a",
+                "parameters": [
+                    {
+                        "name": "pickList",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "line",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "quantity": {
+                                        "description": "Pièces, grammes ou millilitres",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Ligne enregistrée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PickList"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Préparation d'un autre préparateur"
+                    },
+                    "422": {
+                        "description": "Quantité refusée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fulfillment/pick-lists/{pickList}/lines/{line}/substitute": {
+            "post": {
+                "tags": [
+                    "Préparation"
+                ],
+                "summary": "Remplacer un article en rupture (prix plafonné au prix commandé)",
+                "operationId": "f5a314ebddb9bbf2e11cf05bb31c55f2",
+                "parameters": [
+                    {
+                        "name": "pickList",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "line",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "product_id",
+                                    "quantity"
+                                ],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer"
+                                    },
+                                    "quantity": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Remplacement enregistré",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PickList"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Remplacement refusé par le client ou impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/fulfillment/pick-lists/{pickList}/complete": {
+            "post": {
+                "tags": [
+                    "Préparation"
+                ],
+                "summary": "Terminer la préparation : totaux réels, stock ajusté, commande prête",
+                "operationId": "994e9e1be386ed8b0a6624dad48a08b4",
+                "parameters": [
+                    {
+                        "name": "pickList",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Préparation terminée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data",
+                                        "adjustment_minor"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PickList"
+                                        },
+                                        "adjustment_minor": {
+                                            "description": "Réel - payé : négatif = à rembourser, positif = à encaisser",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Articles restants ou remplaçant indisponible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Inscription client",
+                "operationId": "9728b5f49db27a9e2c1a19cb29c007d7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Awa Koné"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "awa@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+2250700000000"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Compte créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResult"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Connexion par e-mail ou téléphone",
+                "operationId": "488c2daac977b1c161dc751145d9dfe3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "login",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "login": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Jeton Sanctum",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResult"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Identifiants incorrects"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Utilisateur courant",
+                "operationId": "a69e035abcffe1bdd422bcb2883473d6",
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Déconnexion",
+                "operationId": "3885c90334138be966c2e718f4ae8a09",
+                "responses": {
+                    "204": {
+                        "description": "Jeton révoqué"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/orders/{orderId}/invoice": {
+            "get": {
+                "tags": [
+                    "Facturation"
+                ],
+                "summary": "Facture d'une commande payée",
+                "operationId": "565f258731e7b75d9391de18682f783d",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Facture",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Invoice"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Aucune facture pour cette commande"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/orders": {
+            "get": {
+                "tags": [
+                    "Commandes"
+                ],
+                "summary": "Mes commandes (toutes les commandes pour le personnel autorisé)",
+                "operationId": "31d87ae523d04063edf2ea83e82ee1d4",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Commandes paginées",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrderPage"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Commandes"
+                ],
+                "summary": "Passer une commande (prix calculés par le serveur)",
+                "operationId": "cd756986bd0949a71013b59d6de8cc8a",
+                "parameters": [
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "items"
+                                ],
+                                "properties": {
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "product_id",
+                                                "quantity"
+                                            ],
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer"
+                                                },
+                                                "quantity": {
+                                                    "description": "Unité de base : pièces, grammes ou millilitres",
+                                                    "type": "integer"
+                                                },
+                                                "substitution": {
+                                                    "description": "Consigne en cas de rupture",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "allow",
+                                                        "refuse"
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "fulfillment": {
+                                        "description": "Retrait en magasin par défaut",
+                                        "type": "string",
+                                        "enum": [
+                                            "pickup",
+                                            "delivery"
+                                        ]
+                                    },
+                                    "delivery": {
+                                        "description": "Obligatoire pour une livraison",
+                                        "required": [
+                                            "zone_id",
+                                            "slot_id",
+                                            "phone",
+                                            "address"
+                                        ],
+                                        "properties": {
+                                            "zone_id": {
+                                                "type": "integer"
+                                            },
+                                            "slot_id": {
+                                                "type": "integer"
+                                            },
+                                            "phone": {
+                                                "type": "string",
+                                                "example": "+2250700112233"
+                                            },
+                                            "address": {
+                                                "required": [
+                                                    "neighborhood"
+                                                ],
+                                                "properties": {
+                                                    "neighborhood": {
+                                                        "type": "string"
+                                                    },
+                                                    "landmark": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "latitude": {
+                                                        "type": "number",
+                                                        "nullable": true
+                                                    },
+                                                    "longitude": {
+                                                        "type": "number",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Commande créée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Order"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    },
+                    "422": {
+                        "description": "Validation ou produit indisponible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/orders/{order}": {
+            "get": {
+                "tags": [
+                    "Commandes"
+                ],
+                "summary": "Détail d'une commande avec lignes et historique",
+                "operationId": "c74a658d8b9d269ab6b1c98c37253955",
+                "parameters": [
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Commande",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Order"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/orders/{order}/transitions": {
+            "post": {
+                "tags": [
+                    "Commandes"
+                ],
+                "summary": "Changer le statut d'une commande (machine à états)",
+                "operationId": "bc41011c18a82fc6c930d9a958ff5b8d",
+                "parameters": [
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "to"
+                                ],
+                                "properties": {
+                                    "to": {
+                                        "type": "string",
+                                        "example": "confirmed"
+                                    },
+                                    "reason": {
+                                        "description": "Obligatoire pour annulation, réclamation, échec de livraison et retour",
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Commande mise à jour",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Order"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Transition interdite ou motif manquant"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/orders/{orderId}/payments": {
+            "post": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Démarrer le paiement d'une commande (montant fixé par le serveur)",
+                "operationId": "2236b727c6ca3e2cab62e63df3748b15",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "method"
+                                ],
+                                "properties": {
+                                    "method": {
+                                        "type": "string",
+                                        "enum": [
+                                            "mobile_money",
+                                            "card",
+                                            "cash_on_delivery"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Paiement créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Payment"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Commande introuvable"
+                    },
+                    "422": {
+                        "description": "Commande non payable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/payments/{payment}/validate-cash-on-delivery": {
+            "post": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Valider une commande à payer à la livraison (opérateur)",
+                "operationId": "a66850b785f36d0cce03c779a1e552d5",
+                "parameters": [
+                    {
+                        "name": "payment",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Commande validée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Payment"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Paiement non éligible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/orders/{orderId}/refunds": {
+            "get": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Remboursements d'une commande",
+                "operationId": "2228cabaa8830cd690c522a73a59bb2a",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Remboursements et montant encore remboursable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Refund"
+                                            }
+                                        },
+                                        "meta": {
+                                            "required": [
+                                                "refundable_minor"
+                                            ],
+                                            "properties": {
+                                                "refundable_minor": {
+                                                    "description": "Encaissé - déjà remboursé (ou en cours)",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Commande introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Rembourser un montant au client (geste commercial, réclamation)",
+                "operationId": "3bd53ec521a709ba26fe45a09bf349ae",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "amount_minor",
+                                    "reason"
+                                ],
+                                "properties": {
+                                    "amount_minor": {
+                                        "type": "integer"
+                                    },
+                                    "reason": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Remboursements créés",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Refund"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "404": {
+                        "description": "Commande introuvable"
+                    },
+                    "422": {
+                        "description": "Montant supérieur au remboursable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/webhooks/payments/{provider}": {
+            "post": {
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Webhook d'un agrégateur de paiement (signé, idempotent)",
+                "operationId": "6d549f1934115ff1af2f0a74f39509a4",
+                "parameters": [
+                    {
+                        "name": "provider",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "fake"
+                        }
+                    },
+                    {
+                        "name": "X-Signature",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Événement pris en compte (ou déjà traité)"
+                    },
+                    "401": {
+                        "description": "Signature invalide"
+                    },
+                    "404": {
+                        "description": "Fournisseur inconnu"
+                    },
+                    "422": {
+                        "description": "Événement mal formé"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Product": {
+                "required": [
+                    "id",
+                    "sku",
+                    "name",
+                    "slug",
+                    "sale_unit",
+                    "price_minor"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "sku": {
+                        "type": "string"
+                    },
+                    "barcode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "sale_unit": {
+                        "type": "string",
+                        "enum": [
+                            "piece",
+                            "kg",
+                            "l"
+                        ]
+                    },
+                    "is_weight_variable": {
+                        "type": "boolean"
+                    },
+                    "price_minor": {
+                        "description": "Prix en plus petite unité monétaire (F CFA)",
+                        "type": "integer"
+                    },
+                    "vat_rate_bp": {
+                        "description": "Taux de TVA en points de base",
+                        "type": "integer"
+                    },
+                    "perishable": {
+                        "type": "boolean"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductPage": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Product"
+                        }
+                    },
+                    "meta": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer"
+                            },
+                            "last_page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "Delivery": {
+                "required": [
+                    "id",
+                    "order_id",
+                    "status",
+                    "cash_due_minor"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "assigned",
+                            "out_for_delivery",
+                            "delivered",
+                            "failed",
+                            "returned"
+                        ]
+                    },
+                    "courier_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "courier_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "address": {
+                        "properties": {
+                            "neighborhood": {
+                                "type": "string"
+                            },
+                            "landmark": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "latitude": {
+                                "type": "number",
+                                "nullable": true
+                            },
+                            "longitude": {
+                                "type": "number",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "slot_starts_at": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "slot_ends_at": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cash_due_minor": {
+                        "description": "Espèces à encaisser à la remise (0 si déjà payée)",
+                        "type": "integer"
+                    },
+                    "failure_reason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "code_locked": {
+                        "description": "Trop de codes erronés : un responsable doit débloquer",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "DeliverySlot": {
+                "required": [
+                    "id",
+                    "starts_at",
+                    "ends_at",
+                    "remaining"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "delivery_zone_id": {
+                        "type": "integer"
+                    },
+                    "starts_at": {
+                        "type": "string"
+                    },
+                    "ends_at": {
+                        "type": "string"
+                    },
+                    "remaining": {
+                        "description": "Places restantes",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "DeliveryZone": {
+                "required": [
+                    "id",
+                    "name",
+                    "fee_minor",
+                    "min_order_minor"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "fee_minor": {
+                        "type": "integer"
+                    },
+                    "free_above_minor": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "min_order_minor": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "PickLine": {
+                "required": [
+                    "id",
+                    "name",
+                    "sale_unit",
+                    "ordered_quantity",
+                    "status",
+                    "max_quantity"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "sale_unit": {
+                        "type": "string",
+                        "enum": [
+                            "piece",
+                            "kg",
+                            "l"
+                        ]
+                    },
+                    "ordered_quantity": {
+                        "description": "Pièces, grammes ou millilitres",
+                        "type": "integer"
+                    },
+                    "max_quantity": {
+                        "description": "Plafond servable (commandé + marge de pesée)",
+                        "type": "integer"
+                    },
+                    "substitution": {
+                        "type": "string",
+                        "enum": [
+                            "allow",
+                            "refuse"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "picked",
+                            "short",
+                            "substituted"
+                        ]
+                    },
+                    "picked_quantity": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "final_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "final_unit_price_minor": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PickList": {
+                "required": [
+                    "id",
+                    "order_id",
+                    "status",
+                    "lines"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "open",
+                            "in_progress",
+                            "completed"
+                        ]
+                    },
+                    "picker_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PickLine"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "role"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "role": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthResult": {
+                "required": [
+                    "user",
+                    "token"
+                ],
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "InvoiceLine": {
+                "required": [
+                    "name",
+                    "quantity",
+                    "line_total_minor"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "sku": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "unit_price_minor": {
+                        "type": "integer"
+                    },
+                    "line_total_minor": {
+                        "type": "integer"
+                    },
+                    "vat_rate_bp": {
+                        "type": "integer"
+                    },
+                    "vat_minor": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "Invoice": {
+                "required": [
+                    "number",
+                    "order_id",
+                    "total_minor",
+                    "vat_minor",
+                    "net_minor"
+                ],
+                "properties": {
+                    "number": {
+                        "type": "string",
+                        "example": "FAC-2026-000001"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "issued_at": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "total_minor": {
+                        "description": "Total TTC",
+                        "type": "integer"
+                    },
+                    "vat_minor": {
+                        "type": "integer"
+                    },
+                    "net_minor": {
+                        "description": "Total HT",
+                        "type": "integer"
+                    },
+                    "credited_minor": {
+                        "description": "Total des avoirs émis sur cette facture",
+                        "type": "integer"
+                    },
+                    "credit_notes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreditNote"
+                        }
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InvoiceLine"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "CreditNote": {
+                "required": [
+                    "number",
+                    "total_minor",
+                    "reason"
+                ],
+                "properties": {
+                    "number": {
+                        "type": "string",
+                        "example": "AV-2026-000001"
+                    },
+                    "issued_at": {
+                        "type": "string"
+                    },
+                    "total_minor": {
+                        "type": "integer"
+                    },
+                    "vat_minor": {
+                        "type": "integer"
+                    },
+                    "net_minor": {
+                        "type": "integer"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "OrderLine": {
+                "required": [
+                    "product_id",
+                    "name",
+                    "quantity",
+                    "unit_price_minor",
+                    "line_total_minor"
+                ],
+                "properties": {
+                    "product_id": {
+                        "type": "integer"
+                    },
+                    "sku": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "sale_unit": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "description": "Unité de base : pièces, grammes ou millilitres",
+                        "type": "integer"
+                    },
+                    "unit_price_minor": {
+                        "type": "integer"
+                    },
+                    "line_total_minor": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "OrderHistoryEntry": {
+                "required": [
+                    "to_status"
+                ],
+                "properties": {
+                    "from_status": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "to_status": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Order": {
+                "required": [
+                    "id",
+                    "status",
+                    "total_minor"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "number": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "draft",
+                            "awaiting_payment",
+                            "payment_failed",
+                            "paid",
+                            "under_review",
+                            "confirmed",
+                            "preparing",
+                            "ready",
+                            "assigned",
+                            "out_for_delivery",
+                            "delivery_failed",
+                            "delivered",
+                            "completed",
+                            "claim",
+                            "refunded",
+                            "returned",
+                            "cancelled"
+                        ]
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "XOF"
+                    },
+                    "subtotal_minor": {
+                        "type": "integer"
+                    },
+                    "delivery_fee_minor": {
+                        "type": "integer"
+                    },
+                    "discount_minor": {
+                        "type": "integer"
+                    },
+                    "total_minor": {
+                        "type": "integer"
+                    },
+                    "final_total_minor": {
+                        "description": "Montant réel après préparation",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "adjustment_minor": {
+                        "description": "Réel - payé : négatif = à rembourser",
+                        "type": "integer"
+                    },
+                    "fulfillment": {
+                        "type": "string",
+                        "enum": [
+                            "pickup",
+                            "delivery"
+                        ]
+                    },
+                    "delivery_slot_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderLine"
+                        }
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrderHistoryEntry"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "OrderPage": {
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Order"
+                        }
+                    },
+                    "meta": {
+                        "required": [
+                            "current_page",
+                            "last_page",
+                            "total"
+                        ],
+                        "properties": {
+                            "current_page": {
+                                "type": "integer"
+                            },
+                            "last_page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "Payment": {
+                "required": [
+                    "id",
+                    "reference",
+                    "order_id",
+                    "method",
+                    "status",
+                    "amount_minor",
+                    "currency"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "reference": {
+                        "type": "string"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": [
+                            "mobile_money",
+                            "card",
+                            "cash_on_delivery"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "pending_on_delivery",
+                            "succeeded",
+                            "failed",
+                            "flagged"
+                        ]
+                    },
+                    "amount_minor": {
+                        "type": "integer"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "XOF"
+                    }
+                },
+                "type": "object"
+            },
+            "Refund": {
+                "required": [
+                    "id",
+                    "reference",
+                    "order_id",
+                    "amount_minor",
+                    "currency",
+                    "status",
+                    "kind",
+                    "reason"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "reference": {
+                        "type": "string"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "amount_minor": {
+                        "type": "integer"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "XOF"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "succeeded",
+                            "failed"
+                        ]
+                    },
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "adjustment",
+                            "cancellation",
+                            "manual",
+                            "late_payment"
+                        ]
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Jeton Sanctum",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Comptabilité",
+            "description": "Comptabilité"
+        },
+        {
+            "name": "Catalogue",
+            "description": "Catalogue"
+        },
+        {
+            "name": "Livraison",
+            "description": "Livraison"
+        },
+        {
+            "name": "Préparation",
+            "description": "Préparation"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Facturation",
+            "description": "Facturation"
+        },
+        {
+            "name": "Commandes",
+            "description": "Commandes"
+        },
+        {
+            "name": "Paiements",
+            "description": "Paiements"
+        }
+    ]
+}

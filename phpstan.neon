@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - app
+    databaseMigrationsPath:
+        - app/Modules/Identity/Database/Migrations
+        - app/Modules/Catalog/Database/Migrations
+        - app/Modules/Inventory/Database/Migrations
+        - app/Modules/Orders/Database/Migrations
+        - app/Modules/Payments/Database/Migrations
+        - app/Modules/Invoicing/Database/Migrations
+        - app/Modules/Accounting/Database/Migrations
+        - app/Modules/Delivery/Database/Migrations
+        - app/Modules/Fulfillment/Database/Migrations
