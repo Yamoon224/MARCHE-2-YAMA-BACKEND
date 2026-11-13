@@ -103,3 +103,17 @@ arch('modules use strict types')
 arch('no debugging leftovers')
     ->expect(['dd', 'dump', 'var_dump'])
     ->not->toBeUsed();
+
+arch('Notifications only listens to public events and contracts of other modules')
+    ->expect('App\Modules\Notifications')
+    ->not->toUse([
+        'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Invoicing', 'App\Modules\Accounting',
+        'App\Modules\Delivery', 'App\Modules\Fulfillment', 'App\Modules\Claims',
+        'App\Modules\Orders\Models', 'App\Modules\Orders\Actions', 'App\Modules\Orders\Domain',
+        'App\Modules\Payments\Models', 'App\Modules\Payments\Actions', 'App\Modules\Payments\Gateways',
+        'App\Modules\Identity\Models', 'App\Modules\Identity\Enums', 'App\Modules\Identity\Actions',
+    ]);
+
+arch('Notification channels implement the channel port')
+    ->expect('App\Modules\Notifications\Channels')
+    ->toImplement('App\Modules\Notifications\Contracts\NotificationChannel');

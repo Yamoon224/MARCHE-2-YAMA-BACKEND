@@ -8,6 +8,7 @@ use App\Modules\Fulfillment\Providers\FulfillmentServiceProvider;
 use App\Modules\Identity\Providers\IdentityServiceProvider;
 use App\Modules\Inventory\Providers\InventoryServiceProvider;
 use App\Modules\Invoicing\Providers\InvoicingServiceProvider;
+use App\Modules\Notifications\Providers\NotificationsServiceProvider;
 use App\Modules\Orders\Providers\OrdersServiceProvider;
 use App\Modules\Payments\Providers\PaymentsServiceProvider;
 use App\Providers\AppServiceProvider;
@@ -24,4 +25,5 @@ return [
     DeliveryServiceProvider::class,
     FulfillmentServiceProvider::class,
     ClaimsServiceProvider::class,
+    NotificationsServiceProvider::class,
 ];

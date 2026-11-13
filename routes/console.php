@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Inventory\Actions\ReleaseExpiredReservationsAction;
+use App\Modules\Notifications\Actions\RetryFailedDeliveriesAction;
 use App\Modules\Orders\Actions\ExpireUnpaidOrdersAction;
 use App\Modules\Payments\Actions\RetryFailedRefundsAction;
 use Illuminate\Support\Facades\Artisan;
@@ -18,6 +19,11 @@ Artisan::command('payments:retry-refunds', function (RetryFailedRefundsAction $a
     $this->info($action->execute().' remboursement(s) repris avec succès.');
 })->purpose("Relance les remboursements refusés par l'agrégateur ou restés en attente");
 
+Artisan::command('notifications:retry-failed', function (RetryFailedDeliveriesAction $action) {
+    $this->info($action->execute().' envoi(s) repris avec succès.');
+})->purpose('Relance les SMS et e-mails en échec (dans la limite des tentatives)');
+
+Schedule::command('notifications:retry-failed')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('payments:retry-refunds')->everyThirtyMinutes()->withoutOverlapping();
 Schedule::command('orders:expire-unpaid')->everyMinute()->withoutOverlapping();
 Schedule::command('inventory:release-expired')->everyFiveMinutes()->withoutOverlapping();

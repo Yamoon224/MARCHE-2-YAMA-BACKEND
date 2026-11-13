@@ -16,3 +16,4 @@ parameters:
         - app/Modules/Delivery/Database/Migrations
         - app/Modules/Fulfillment/Database/Migrations
         - app/Modules/Claims/Database/Migrations
+        - app/Modules/Notifications/Database/Migrations

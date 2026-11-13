@@ -6,8 +6,8 @@ namespace App\Modules\Identity\Providers;
 
 use App\Modules\Identity\Contracts\ContactDirectory;
 use App\Modules\Identity\Contracts\CourierDirectory;
-use App\Modules\Identity\Services\EloquentContactDirectory;
 use App\Modules\Identity\Http\Middleware\RequirePermission;
+use App\Modules\Identity\Services\EloquentContactDirectory;
 use App\Modules\Identity\Services\EloquentCourierDirectory;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
