@@ -20,7 +20,7 @@ final class RejectInvalidUtf8
         if (! $this->isValid($request->query->all()) || ! $this->isValid($request->request->all())) {
             return new JsonResponse([
                 'message' => "Les données envoyées contiennent des caractères d'un encodage invalide (UTF-8 attendu).",
-                'errors' => ['encoding' => ["Les données doivent être encodées en UTF-8."]],
+                'errors' => ['encoding' => ['Les données doivent être encodées en UTF-8.']],
             ], 422);
         }
 
