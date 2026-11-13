@@ -669,6 +669,192 @@
                 ]
             }
         },
+        "/api/v1/delivery/cash": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Espèces détenues par chaque livreur (encaissées, non remises)",
+                "operationId": "fabf2e4b1cb9f95c81a99c5394148b89",
+                "responses": {
+                    "200": {
+                        "description": "Soldes par livreur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CourierCash"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/cash/handovers": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Historique des remises de fonds",
+                "operationId": "af0ec6c4499eb97264cda206404d9485",
+                "responses": {
+                    "200": {
+                        "description": "Remises (les plus récentes en premier)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CashHandover"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Enregistrer la remise de fonds d'un livreur (solde tout ce qu'il détient)",
+                "operationId": "dc1d67c5c3d4d18c0ce8d0213d8d1dea",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "courier_id",
+                                    "counted_minor"
+                                ],
+                                "properties": {
+                                    "courier_id": {
+                                        "type": "integer"
+                                    },
+                                    "counted_minor": {
+                                        "description": "Montant compté en F CFA",
+                                        "type": "integer"
+                                    },
+                                    "note": {
+                                        "description": "Obligatoire s'il y a un écart",
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Remise enregistrée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/CashHandover"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Rien à remettre, pas un livreur, ou écart non expliqué"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/delivery/my-cash": {
+            "get": {
+                "tags": [
+                    "Livraison"
+                ],
+                "summary": "Espèces que le livreur connecté détient encore",
+                "operationId": "a9c741f9f4d7ae9b269750060e4e3a46",
+                "responses": {
+                    "200": {
+                        "description": "Solde du livreur",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "required": [
+                                                "held_minor",
+                                                "deliveries_count"
+                                            ],
+                                            "properties": {
+                                                "held_minor": {
+                                                    "type": "integer"
+                                                },
+                                                "deliveries_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/delivery/my-tour": {
             "get": {
                 "tags": [
@@ -3074,6 +3260,73 @@
                         "items": {
                             "$ref": "#/components/schemas/ClaimPhoto"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "CourierCash": {
+                "required": [
+                    "courier_id",
+                    "held_minor",
+                    "deliveries_count"
+                ],
+                "properties": {
+                    "courier_id": {
+                        "description": "Remise de fonds : ce que chaque livreur détient en espèces, et le comptage à son retour au magasin.",
+                        "type": "integer"
+                    },
+                    "courier_name": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "held_minor": {
+                        "type": "integer"
+                    },
+                    "deliveries_count": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "CashHandover": {
+                "required": [
+                    "id",
+                    "courier_id",
+                    "expected_minor",
+                    "counted_minor",
+                    "variance_minor",
+                    "deliveries_count"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "courier_id": {
+                        "type": "integer"
+                    },
+                    "received_by": {
+                        "type": "integer"
+                    },
+                    "expected_minor": {
+                        "type": "integer"
+                    },
+                    "counted_minor": {
+                        "type": "integer"
+                    },
+                    "variance_minor": {
+                        "description": "Compté - attendu : négatif = manquant",
+                        "type": "integer"
+                    },
+                    "deliveries_count": {
+                        "type": "integer"
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"

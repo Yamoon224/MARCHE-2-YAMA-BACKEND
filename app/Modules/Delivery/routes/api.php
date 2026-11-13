@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Delivery\Http\Controllers\CashController;
 use App\Modules\Delivery\Http\Controllers\CourierController;
 use App\Modules\Delivery\Http\Controllers\DeliveryController;
 use App\Modules\Delivery\Http\Controllers\DispatchController;
@@ -24,9 +25,17 @@ Route::prefix('delivery')->group(function () {
         Route::post('deliveries/{delivery}/unlock', [DispatchController::class, 'unlock']);
     });
 
+    // Remise de fonds : réservée à qui peut recevoir de l'argent en caisse.
+    Route::middleware(['auth:sanctum', 'permission:cash.receive'])->prefix('cash')->group(function () {
+        Route::get('/', [CashController::class, 'index']);
+        Route::get('handovers', [CashController::class, 'handovers']);
+        Route::post('handovers', [CashController::class, 'store'])->middleware('throttle:60,1');
+    });
+
     // Livreur : tournée, départ, position, remise, échec.
     Route::middleware(['auth:sanctum', 'permission:delivery.courier'])->group(function () {
         Route::get('my-tour', [CourierController::class, 'tour']);
+        Route::get('my-cash', [CashController::class, 'mine']);
         Route::post('deliveries/{delivery}/start', [CourierController::class, 'start']);
         Route::post('deliveries/{delivery}/location', [CourierController::class, 'location'])->middleware('throttle:120,1');
         Route::post('deliveries/{delivery}/confirm', [CourierController::class, 'confirm'])->middleware('throttle:30,1');

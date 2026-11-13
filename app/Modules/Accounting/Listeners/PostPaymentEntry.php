@@ -18,7 +18,7 @@ final class PostPaymentEntry
         $treasury = match ($event->method) {
             PaymentMethod::MobileMoney => '5851',
             PaymentMethod::Card => '521',
-            PaymentMethod::CashOnDelivery => '571',
+            PaymentMethod::CashOnDelivery => '5715', // l'argent est chez le livreur jusqu'à la remise de fonds
         };
 
         $this->post->execute('BQ', 'payment', $event->paymentId, "Encaissement commande {$event->orderId}", [

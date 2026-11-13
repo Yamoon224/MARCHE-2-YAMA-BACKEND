@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\Accounting\Providers;
 
+use App\Modules\Accounting\Listeners\PostCashHandoverEntry;
 use App\Modules\Accounting\Listeners\PostCreditNoteEntry;
 use App\Modules\Accounting\Listeners\PostInvoiceEntry;
 use App\Modules\Accounting\Listeners\PostPaymentEntry;
 use App\Modules\Accounting\Listeners\PostRefundEntry;
+use App\Modules\Delivery\Events\CashHandedOver;
 use App\Modules\Invoicing\Events\CreditNoteIssued;
 use App\Modules\Invoicing\Events\InvoiceIssued;
 use App\Modules\Payments\Events\PaymentSucceeded;
@@ -25,6 +27,7 @@ class AccountingServiceProvider extends ServiceProvider
         Event::listen(CreditNoteIssued::class, PostCreditNoteEntry::class);
         Event::listen(PaymentSucceeded::class, PostPaymentEntry::class);
         Event::listen(RefundIssued::class, PostRefundEntry::class);
+        Event::listen(CashHandedOver::class, PostCashHandoverEntry::class);
         Route::prefix('api/v1')->middleware('api')->group(__DIR__.'/../routes/api.php');
     }
 }

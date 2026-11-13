@@ -22,7 +22,7 @@ class Delivery extends Model
 
     protected $fillable = [
         'order_id', 'courier_id', 'status', 'confirmation_code', 'code_attempts',
-        'cash_collected_minor', 'failure_reason', 'assigned_at', 'delivered_at',
+        'cash_collected_minor', 'cash_handover_id', 'failure_reason', 'assigned_at', 'delivered_at',
     ];
 
     protected $hidden = ['confirmation_code'];

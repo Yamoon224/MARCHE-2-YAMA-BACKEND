@@ -134,7 +134,7 @@ it('collects exactly the cash due for a cash on delivery order and books it in t
     $payment = Payment::where('order_id', $ctx['order']->id)->sole();
     expect($payment->status->value)->toBe('succeeded')->and($payment->amount_minor)->toBe(11500)
         ->and($ctx['delivery']->refresh()->cash_collected_minor)->toBe(11500)
-        ->and(ledger('571'))->toBe(11500)->and(ledger('411'))->toBe(0)->and(ledgerIsBalanced())->toBeTrue();
+        ->and(ledger('5715'))->toBe(11500)->and(ledger('411'))->toBe(0)->and(ledgerIsBalanced())->toBeTrue();
 });
 
 it('does not ask for the code to be guessed from the cash error: the code is checked first', function () {
@@ -158,7 +158,7 @@ it('collects the real total of a cash on delivery order after a lighter weighing
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 11500)->assertUnprocessable()->assertJsonPath('errors.delivery.0', 'Montant encaissé incorrect : 6500 F CFA attendus.');
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 6500)->assertOk();
 
-    expect(ledger('571'))->toBe(6500)->and(ledger('411'))->toBe(0)->and(ledgerIsBalanced())->toBeTrue();
+    expect(ledger('5715'))->toBe(6500)->and(ledger('411'))->toBe(0)->and(ledgerIsBalanced())->toBeTrue();
 });
 
 // ───────────────────────── échec et retour ─────────────────────────
@@ -255,5 +255,5 @@ it('keeps the ledger balanced across prepaid, cash and returned deliveries', fun
 
     expect(ledgerIsBalanced())->toBeTrue()->and(ledger('411'))->toBe(0)
         ->and(ledger('5851'))->toBe($paid['total'])  // seule la commande livrée en ligne reste encaissée
-        ->and(ledger('571'))->toBe($cash['total']);  // et l'argent des espèces est en caisse
+        ->and(ledger('5715'))->toBe($cash['total']);  // et l'argent des espèces est en caisse
 });

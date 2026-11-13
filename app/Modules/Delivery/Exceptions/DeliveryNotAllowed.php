@@ -33,6 +33,16 @@ final class DeliveryNotAllowed extends DomainException
         return new self("Montant encaissé incorrect : {$due} F CFA attendus.");
     }
 
+    public static function nothingToHandOver(): self
+    {
+        return new self("Ce livreur n'a aucune espèce à remettre.");
+    }
+
+    public static function varianceNeedsNote(int $expected): self
+    {
+        return new self("Le montant compté diffère des {$expected} F CFA attendus : expliquez l'écart.");
+    }
+
     public static function orderNotDeliverable(): self
     {
         return new self("Cette commande n'est pas une livraison à domicile prête à partir.");

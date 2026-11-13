@@ -28,7 +28,7 @@ enum Role: string
             self::StockKeeper => ['inventory.manage', 'inventory.view'],
             self::Buyer => ['inventory.view'],
             self::Picker => ['inventory.view', 'orders.prepare'],
-            self::OrderOperator => ['orders.view', 'orders.manage', 'orders.prepare', 'delivery.manage', 'delivery.assign'],
+            self::OrderOperator => ['orders.view', 'orders.manage', 'orders.prepare', 'delivery.manage', 'delivery.assign', 'cash.receive'],
             self::Courier => ['orders.deliver', 'delivery.courier'],
             self::Support => ['orders.view', 'invoicing.view', 'payments.refund', 'claims.decide'],
             self::Accountant => ['orders.view', 'invoicing.view', 'accounting.view'],
