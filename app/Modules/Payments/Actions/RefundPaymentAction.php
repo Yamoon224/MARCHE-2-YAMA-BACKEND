@@ -104,6 +104,14 @@ final class RefundPaymentAction
 
         $payment = $refund->payment;
 
+        // Vente en caisse : le remboursement se rend au comptoir (espèces ou geste manuel), sans agrégateur.
+        if ($payment->provider === 'pos') {
+            $refund->update(['status' => RefundStatus::Succeeded, 'provider_reference' => 'pos-counter', 'failure' => null]);
+            RefundIssued::dispatch($refund->id, $refund->order_id, $refund->amount_minor, $refund->currency, $payment->method, $refund->kind);
+
+            return $refund;
+        }
+
         try {
             $result = $this->gateways->get($payment->provider)->refund(
                 (string) $payment->provider_reference, $refund->amount_minor, $refund->currency, $refund->reference,

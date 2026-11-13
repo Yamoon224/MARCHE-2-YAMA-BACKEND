@@ -11,7 +11,9 @@ final class EloquentOrderCustomerDirectory implements OrderCustomerDirectory
 {
     public function customersOf(array $orderIds): array
     {
-        return Order::whereIn('id', $orderIds)->pluck('user_id', 'id')->all();
+        // Une vente en caisse n'a pas de client à notifier : son compte rattaché est celui du caissier.
+        return Order::whereIn('id', $orderIds)->get(['id', 'user_id', 'channel'])
+            ->mapWithKeys(fn (Order $o) => [$o->id => $o->channel === 'pos' ? null : $o->user_id])->all();
     }
 
     public function fulfillmentOf(int $orderId): ?string

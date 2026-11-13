@@ -18,7 +18,7 @@ final class PostRefundEntry
         $treasury = match ($event->method) {
             PaymentMethod::MobileMoney => '5851',
             PaymentMethod::Card => '521',
-            PaymentMethod::CashOnDelivery => '571',
+            PaymentMethod::CashOnDelivery, PaymentMethod::Cash => '571',
         };
 
         $this->post->execute('BQ', 'refund', $event->refundId, "Remboursement commande {$event->orderId}", [

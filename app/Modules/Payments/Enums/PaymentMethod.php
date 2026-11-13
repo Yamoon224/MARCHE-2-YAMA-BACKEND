@@ -9,9 +9,11 @@ enum PaymentMethod: string
     case MobileMoney = 'mobile_money';
     case Card = 'card';
     case CashOnDelivery = 'cash_on_delivery';
+    /** Espèces encaissées en caisse (vente au comptoir) : jamais proposé en ligne. */
+    case Cash = 'cash';
 
     public function isOnline(): bool
     {
-        return $this !== self::CashOnDelivery;
+        return ! in_array($this, [self::CashOnDelivery, self::Cash], true);
     }
 }

@@ -13,6 +13,6 @@ class InitiatePaymentRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        return ['method' => ['required', Rule::enum(PaymentMethod::class)]];
+        return ['method' => ['required', Rule::enum(PaymentMethod::class)->only([PaymentMethod::MobileMoney, PaymentMethod::Card, PaymentMethod::CashOnDelivery])]];
     }
 }

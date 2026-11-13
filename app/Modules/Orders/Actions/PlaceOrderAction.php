@@ -36,7 +36,7 @@ final class PlaceOrderAction
      * @throws InsufficientStock
      * @throws DeliveryUnavailable
      */
-    public function execute(int $userId, array $items, ?string $idempotencyKey = null, ?DeliveryChoice $delivery = null): Order
+    public function execute(int $userId, array $items, ?string $idempotencyKey = null, ?DeliveryChoice $delivery = null, string $channel = 'web'): Order
     {
         if ($idempotencyKey !== null) {
             $existing = Order::where('user_id', $userId)->where('idempotency_key', $idempotencyKey)->first();
@@ -55,7 +55,7 @@ final class PlaceOrderAction
 
         $products = $this->prices->findOrderable(array_keys($quantities));
 
-        return DB::transaction(function () use ($userId, $quantities, $policies, $products, $idempotencyKey, $delivery) {
+        return DB::transaction(function () use ($userId, $quantities, $policies, $products, $idempotencyKey, $delivery, $channel) {
             $lines = [];
             $subtotal = 0;
 
@@ -77,7 +77,7 @@ final class PlaceOrderAction
             $order = Order::create([
                 'user_id' => $userId, 'status' => OrderStatus::AwaitingPayment,
                 'subtotal_minor' => $subtotal, 'delivery_fee_minor' => $fee, 'total_minor' => $subtotal + $fee,
-                'idempotency_key' => $idempotencyKey,
+                'idempotency_key' => $idempotencyKey, 'channel' => $channel,
                 'fulfillment' => $delivery !== null ? 'delivery' : 'pickup',
                 'delivery_zone_id' => $delivery?->zoneId, 'delivery_slot_id' => $delivery?->slotId,
                 'delivery_address' => $delivery?->address, 'contact_phone' => $delivery?->phone,

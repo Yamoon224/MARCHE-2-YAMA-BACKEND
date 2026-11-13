@@ -8,7 +8,9 @@ use App\Modules\Delivery\Events\DeliveryCompleted;
 use App\Modules\Orders\Events\OrderStatusChanged;
 use App\Modules\Orders\Events\OrderTotalAdjusted;
 use App\Modules\Payments\Contracts\CashDueReader;
+use App\Modules\Payments\Contracts\PosPaymentRecorder;
 use App\Modules\Payments\Contracts\RefundIssuer;
+use App\Modules\Payments\Services\PaymentsPosRecorder;
 use App\Modules\Payments\Listeners\CollectCashWhenDelivered;
 use App\Modules\Payments\Listeners\RefundOnCancellation;
 use App\Modules\Payments\Listeners\RefundOnPreparationAdjustment;
@@ -24,6 +26,7 @@ class PaymentsServiceProvider extends ServiceProvider
     {
         $this->app->bind(CashDueReader::class, PaymentsCashDueReader::class);
         $this->app->bind(RefundIssuer::class, PaymentsRefundIssuer::class);
+        $this->app->bind(PosPaymentRecorder::class, PaymentsPosRecorder::class);
     }
 
     public function boot(): void
