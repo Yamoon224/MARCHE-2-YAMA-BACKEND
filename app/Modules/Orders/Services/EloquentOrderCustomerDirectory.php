@@ -13,4 +13,11 @@ final class EloquentOrderCustomerDirectory implements OrderCustomerDirectory
     {
         return Order::whereIn('id', $orderIds)->pluck('user_id', 'id')->all();
     }
+
+    public function fulfillmentOf(int $orderId): ?string
+    {
+        $value = Order::whereKey($orderId)->value('fulfillment');
+
+        return $value === 'delivery' || $value === 'pickup' ? $value : null;
+    }
 }

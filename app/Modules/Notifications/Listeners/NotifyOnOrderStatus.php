@@ -28,12 +28,20 @@ final class NotifyOnOrderStatus
 
     public function handle(OrderStatusChanged $event): void
     {
-        $type = self::TYPES[$event->to->value] ?? null;
-        if ($type === null || $event->to === $event->from) {
+        if ($event->to === $event->from) {
             return;
         }
 
         try {
+            // « Prête » ne concerne le client que pour un retrait en magasin (à domicile, c'est le livreur qui part).
+            $type = $event->to->value === 'ready'
+                ? ($this->orders->fulfillmentOf($event->orderId) === 'pickup' ? Templates::ORDER_READY_PICKUP : null)
+                : (self::TYPES[$event->to->value] ?? null);
+
+            if ($type === null) {
+                return;
+            }
+
             $customerId = $this->orders->customersOf([$event->orderId])[$event->orderId] ?? null;
 
             if ($customerId !== null) {

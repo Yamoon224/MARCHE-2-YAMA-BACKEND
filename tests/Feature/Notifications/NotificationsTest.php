@@ -1,7 +1,9 @@
 <?php
 
 use App\Modules\Delivery\Models\Delivery;
+use App\Modules\Identity\Enums\Role;
 use App\Modules\Identity\Models\User;
+use App\Modules\Inventory\Models\StockLot;
 use App\Modules\Notifications\Actions\RetryFailedDeliveriesAction;
 use App\Modules\Notifications\Actions\SendNotificationAction;
 use App\Modules\Notifications\Models\NotificationDelivery;
@@ -144,4 +146,37 @@ it('requires authentication', function () {
     asGuest();
     $this->getJson('/api/v1/notifications')->assertUnauthorized();
     $this->postJson('/api/v1/notifications/read-all')->assertUnauthorized();
+});
+
+it('tells a pickup customer that the order is ready, but not a delivery customer', function () {
+    $milk = pieceProduct(1000, 50, 'Lait');
+    $pickup = deliveredOrder([['product' => $milk, 'quantity' => 1]]); // retrait : prête puis remise
+    expect(notifTypes($pickup['customer']))->toContain('order_ready_pickup');
+
+    $delivery = readyDeliveryOrder('mobile_money');
+    expect(notifTypes($delivery['customer']))->not->toContain('order_ready_pickup');
+});
+
+it('alerts every customer who received a recalled lot, once, and nobody else', function () {
+    $milk = pieceProduct(1000, 0, 'Lait');
+    StockLot::where('product_id', $milk->id)->delete();
+    $lot = stockUp($milk, 20, now()->addDays(5)->toDateString());
+
+    $a = deliveredOrder([['product' => $milk, 'quantity' => 2]]);
+    $b = deliveredOrder([['product' => $milk, 'quantity' => 1]]);
+    $stranger = User::factory()->create();
+
+    $keeper = User::factory()->role(Role::StockKeeper)->create();
+    $this->actingAs($keeper, 'sanctum')->postJson("/api/v1/inventory/lots/{$lot->id}/recall", ['reason' => 'Listeria détectée'])->assertOk();
+
+    foreach ([$a, $b] as $ctx) {
+        $note = UserNotification::where('user_id', $ctx['customer']->id)->where('type', 'lot_recalled')->sole();
+        expect($note->body)->toContain($lot->lot_code)->toContain('Listeria détectée')->and($note->title)->toContain((string) $ctx['order']->id);
+    }
+    expect(notifTypes($stranger))->toBe([]);
+
+    // Rappeler une seconde fois ne réalerte personne.
+    $before = UserNotification::where('type', 'lot_recalled')->count();
+    $this->postJson("/api/v1/inventory/lots/{$lot->id}/recall", ['reason' => 'autre motif'])->assertOk();
+    expect(UserNotification::where('type', 'lot_recalled')->count())->toBe($before)->and($before)->toBe(2);
 });

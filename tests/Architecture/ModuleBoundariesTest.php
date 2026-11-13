@@ -107,7 +107,8 @@ arch('no debugging leftovers')
 arch('Notifications only listens to public events and contracts of other modules')
     ->expect('App\Modules\Notifications')
     ->not->toUse([
-        'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Invoicing', 'App\Modules\Accounting',
+        'App\Modules\Catalog', 'App\Modules\Invoicing', 'App\Modules\Accounting',
+        'App\Modules\Inventory\Models', 'App\Modules\Inventory\Actions', 'App\Modules\Inventory\Services',
         'App\Modules\Delivery', 'App\Modules\Fulfillment', 'App\Modules\Claims',
         'App\Modules\Orders\Models', 'App\Modules\Orders\Actions', 'App\Modules\Orders\Domain',
         'App\Modules\Payments\Models', 'App\Modules\Payments\Actions', 'App\Modules\Payments\Gateways',

@@ -12,4 +12,7 @@ interface OrderCustomerDirectory
      * @return array<int, int|null> identifiant de commande => identifiant du client (null : commande sans compte)
      */
     public function customersOf(array $orderIds): array;
+
+    /** @return 'pickup'|'delivery'|null null : commande inconnue */
+    public function fulfillmentOf(int $orderId): ?string;
 }

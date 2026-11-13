@@ -21,8 +21,12 @@ final class Templates
 
     public const REFUND_SENT = 'refund_sent';
 
+    public const ORDER_READY_PICKUP = 'order_ready_pickup';
+
+    public const LOT_RECALLED = 'lot_recalled';
+
     /**
-     * @param  array{order_id?: int, amount_minor?: int}  $params
+     * @param  array{order_id?: int, amount_minor?: int, lot_code?: string, reason?: string}  $params
      * @return array{title: string, body: string}
      */
     public static function render(string $type, array $params): array
@@ -36,6 +40,11 @@ final class Templates
             self::DELIVERY_FAILED => ['title' => "Livraison n°{$order} non aboutie", 'body' => 'Nous n\'avons pas pu vous remettre votre commande. Notre équipe vous recontacte pour convenir d\'une suite.'],
             self::ORDER_CANCELLED => ['title' => "Commande n°{$order} annulée", 'body' => "Votre commande n°{$order} a été annulée. Si vous aviez payé, vous êtes remboursé."],
             self::REFUND_SENT => ['title' => 'Remboursement effectué', 'body' => 'Nous vous avons remboursé '.self::money($params['amount_minor'] ?? 0)." pour la commande n°{$order}."],
+            self::ORDER_READY_PICKUP => ['title' => "Commande n°{$order} prête au retrait", 'body' => "Votre commande n°{$order} vous attend en magasin. Munissez-vous de votre numéro de commande."],
+            self::LOT_RECALLED => [
+                'title' => "Rappel de produit — commande n°{$order}",
+                'body' => "Un produit de votre commande n°{$order} (lot ".($params['lot_code'] ?? '?').') fait l\'objet d\'un rappel : '.mb_substr($params['reason'] ?? '', 0, 200).'. Ne le consommez pas et contactez-nous : nous vous remboursons.',
+            ],
             default => throw new InvalidArgumentException("Type de notification inconnu : {$type}"),
         };
     }
