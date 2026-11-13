@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use OpenApi\Attributes as OA;
 
-#[OA\Schema(schema: 'OrderLine', required: ['product_id', 'name', 'quantity', 'unit_price_minor', 'line_total_minor'], properties: [
+#[OA\Schema(schema: 'OrderLine', required: ['id', 'product_id', 'name', 'quantity', 'unit_price_minor', 'line_total_minor'], properties: [
+    new OA\Property(property: 'id', type: 'integer', description: 'Identifiant de la ligne (nécessaire pour déclarer une réclamation)'),
     new OA\Property(property: 'product_id', type: 'integer'),
     new OA\Property(property: 'sku', type: 'string'),
     new OA\Property(property: 'name', type: 'string'),
@@ -17,6 +18,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'quantity', type: 'integer', description: 'Unité de base : pièces, grammes ou millilitres'),
     new OA\Property(property: 'unit_price_minor', type: 'integer'),
     new OA\Property(property: 'line_total_minor', type: 'integer'),
+    new OA\Property(property: 'received_quantity', type: 'integer', nullable: true, description: 'Quantité réellement servie après préparation (null tant que non préparée)'),
 ])]
 #[OA\Schema(schema: 'OrderHistoryEntry', required: ['to_status'], properties: [
     new OA\Property(property: 'from_status', type: 'string', nullable: true),
@@ -75,6 +77,7 @@ class OrderResource extends JsonResource
             'fulfillment' => $order->fulfillment,
             'delivery_slot_id' => $order->delivery_slot_id,
             'lines' => $order->relationLoaded('lines') ? $order->lines->map(fn ($l) => [
+                'id' => $l->id, 'received_quantity' => $l->final_quantity,
                 'product_id' => $l->product_id, 'sku' => $l->sku, 'name' => $l->name, 'sale_unit' => $l->sale_unit,
                 'quantity' => $l->quantity, 'unit_price_minor' => $l->unit_price_minor, 'line_total_minor' => $l->line_total_minor,
             ])->all() : [],

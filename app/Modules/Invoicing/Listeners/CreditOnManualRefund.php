@@ -18,8 +18,8 @@ final class CreditOnManualRefund
 
     public function handle(RefundIssued $event): void
     {
-        if ($event->kind === RefundKind::Manual) {
-            $this->credit->execute($event->orderId, $event->amountMinor, 'Remboursement commercial', "refund:{$event->refundId}");
+        if (in_array($event->kind, [RefundKind::Manual, RefundKind::Claim], true)) {
+            $this->credit->execute($event->orderId, $event->amountMinor, $event->kind === RefundKind::Claim ? 'Réclamation acceptée' : 'Remboursement commercial', "refund:{$event->refundId}");
         }
     }
 }

@@ -12,6 +12,8 @@ enum RefundKind: string
     case Cancellation = 'cancellation';
     /** Geste commercial ou réclamation décidée par le personnel. */
     case Manual = 'manual';
+    /** Réclamation acceptée (produit manquant, abîmé, périmé, non conforme). */
+    case Claim = 'claim';
     /** Paiement reçu pour une commande qui n'était plus payable. */
     case LatePayment = 'late_payment';
 }

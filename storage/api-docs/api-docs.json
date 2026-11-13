@@ -200,6 +200,475 @@
                 }
             }
         },
+        "/api/v1/orders/{orderId}/claims": {
+            "post": {
+                "tags": [
+                    "Réclamations"
+                ],
+                "summary": "Déclarer un produit manquant, abîmé, périmé ou non conforme (photos jointes)",
+                "operationId": "335a13cccac4cbcc701c221dad14f3ad",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "items"
+                                ],
+                                "properties": {
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "order_line_id",
+                                                "issue",
+                                                "quantity"
+                                            ],
+                                            "properties": {
+                                                "order_line_id": {
+                                                    "type": "integer"
+                                                },
+                                                "issue": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "missing",
+                                                        "damaged",
+                                                        "expired",
+                                                        "non_conforming"
+                                                    ]
+                                                },
+                                                "quantity": {
+                                                    "description": "Pièces, grammes ou millilitres",
+                                                    "type": "integer"
+                                                },
+                                                "note": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "photos": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Réclamation enregistrée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Claim"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Commande introuvable"
+                    },
+                    "422": {
+                        "description": "Délai dépassé, quantité ou photo invalide, réclamation déjà déposée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/claims": {
+            "get": {
+                "tags": [
+                    "Réclamations"
+                ],
+                "summary": "Mes réclamations (toutes pour le personnel habilité)",
+                "operationId": "e92c83ce41857008941c416e4cf412d4",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "open",
+                                "accepted",
+                                "rejected"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Réclamations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Claim"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/claims/{claim}": {
+            "get": {
+                "tags": [
+                    "Réclamations"
+                ],
+                "summary": "Détail d'une réclamation",
+                "operationId": "91919d15567a2aa13b008906c3730cb3",
+                "parameters": [
+                    {
+                        "name": "claim",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Réclamation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Claim"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/claims/{claim}/photos/{photo}": {
+            "get": {
+                "tags": [
+                    "Réclamations"
+                ],
+                "summary": "Photo d'une réclamation (réservée à son auteur et au personnel habilité)",
+                "operationId": "780c12c85e3cae39db12292e7d79fd0b",
+                "parameters": [
+                    {
+                        "name": "claim",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "photo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Image"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/claims/{claim}/decision": {
+            "post": {
+                "tags": [
+                    "Réclamations"
+                ],
+                "summary": "Décider une réclamation : rejet motivé, ou remboursement / nouvel envoi avec imputation du coût",
+                "operationId": "5bed4320040e19885901dbd7c0db13ae",
+                "parameters": [
+                    {
+                        "name": "claim",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "decision",
+                                    "note"
+                                ],
+                                "properties": {
+                                    "decision": {
+                                        "type": "string",
+                                        "enum": [
+                                            "accept",
+                                            "reject"
+                                        ]
+                                    },
+                                    "note": {
+                                        "description": "Motif de la décision (obligatoire, même pour un rejet)",
+                                        "type": "string"
+                                    },
+                                    "resolution": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "enum": [
+                                            "refund",
+                                            "redelivery"
+                                        ]
+                                    },
+                                    "cost_bearer": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "enum": [
+                                            "supplier",
+                                            "preparation",
+                                            "delivery",
+                                            "store"
+                                        ]
+                                    },
+                                    "amount_minor": {
+                                        "description": "Montant remboursé, au plus la valeur des articles réclamés",
+                                        "type": "integer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Réclamation décidée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Claim"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Déjà décidée, montant excessif ou remboursement impossible"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/claims/quality-stats": {
+            "get": {
+                "tags": [
+                    "Réclamations"
+                ],
+                "summary": "Statistiques de qualité : produits les plus réclamés, causes, coûts par imputation",
+                "operationId": "7ec08ca0291fc978b1160afd7ebd7089",
+                "responses": {
+                    "200": {
+                        "description": "Statistiques",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "claims_total",
+                                        "accepted",
+                                        "rejected",
+                                        "open",
+                                        "refunded_minor",
+                                        "by_product",
+                                        "by_issue",
+                                        "by_cost_bearer"
+                                    ],
+                                    "properties": {
+                                        "claims_total": {
+                                            "type": "integer"
+                                        },
+                                        "accepted": {
+                                            "type": "integer"
+                                        },
+                                        "rejected": {
+                                            "type": "integer"
+                                        },
+                                        "open": {
+                                            "type": "integer"
+                                        },
+                                        "refunded_minor": {
+                                            "type": "integer"
+                                        },
+                                        "by_product": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "product_id",
+                                                    "name",
+                                                    "claims",
+                                                    "units"
+                                                ],
+                                                "properties": {
+                                                    "product_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "claims": {
+                                                        "type": "integer"
+                                                    },
+                                                    "units": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "by_issue": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "issue",
+                                                    "items"
+                                                ],
+                                                "properties": {
+                                                    "issue": {
+                                                        "type": "string"
+                                                    },
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "by_cost_bearer": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "cost_bearer",
+                                                    "claims",
+                                                    "refunded_minor"
+                                                ],
+                                                "properties": {
+                                                    "cost_bearer": {
+                                                        "type": "string"
+                                                    },
+                                                    "claims": {
+                                                        "type": "integer"
+                                                    },
+                                                    "refunded_minor": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/delivery/my-tour": {
             "get": {
                 "tags": [
@@ -1552,6 +2021,165 @@
                 ]
             }
         },
+        "/api/v1/inventory/lots": {
+            "get": {
+                "tags": [
+                    "Stock"
+                ],
+                "summary": "Lots en stock (filtrables : produit, bloqués, péremption proche)",
+                "operationId": "c88f239a5d3614b1540c62da06fdd7d1",
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "blocked",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "expiring_in_days",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lots",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/StockLot"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/inventory/lots/{lot}/recall": {
+            "get": {
+                "tags": [
+                    "Stock"
+                ],
+                "summary": "Rapport de rappel : clients ayant reçu le lot et commandes en attente qui le réservent",
+                "operationId": "4ba1bf9b588a589608a918e05e1a3d46",
+                "parameters": [
+                    {
+                        "name": "lot",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rapport",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LotRecallReport"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ce lot n'a pas été rappelé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Stock"
+                ],
+                "summary": "Rappeler un lot (alerte sanitaire) : blocage immédiat et traçabilité des commandes concernées",
+                "operationId": "f21d628befc74f7019e684e2fbfcfce0",
+                "parameters": [
+                    {
+                        "name": "lot",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "reason"
+                                ],
+                                "properties": {
+                                    "reason": {
+                                        "type": "string",
+                                        "example": "Listeria détectée chez le fournisseur"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lot rappelé et rapport de traçabilité",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LotRecallReport"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Motif manquant"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/orders/{orderId}/invoice": {
             "get": {
                 "tags": [
@@ -2306,6 +2934,150 @@
                 },
                 "type": "object"
             },
+            "ClaimItem": {
+                "required": [
+                    "id",
+                    "order_line_id",
+                    "name",
+                    "issue",
+                    "quantity",
+                    "claimable_minor"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "order_line_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "issue": {
+                        "type": "string",
+                        "enum": [
+                            "missing",
+                            "damaged",
+                            "expired",
+                            "non_conforming"
+                        ]
+                    },
+                    "quantity": {
+                        "description": "Pièces, grammes ou millilitres",
+                        "type": "integer"
+                    },
+                    "claimable_minor": {
+                        "description": "Plafond remboursable pour cette ligne",
+                        "type": "integer"
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ClaimPhoto": {
+                "required": [
+                    "id",
+                    "url"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "description": "Route autorisée qui sert la photo",
+                        "type": "string"
+                    },
+                    "mime": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Claim": {
+                "required": [
+                    "id",
+                    "order_id",
+                    "status",
+                    "claimable_minor",
+                    "refund_amount_minor",
+                    "refund_completed",
+                    "items",
+                    "photos"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "open",
+                            "accepted",
+                            "rejected"
+                        ]
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "claimable_minor": {
+                        "description": "Plafond remboursable de toute la réclamation",
+                        "type": "integer"
+                    },
+                    "resolution": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "refund",
+                            "redelivery"
+                        ]
+                    },
+                    "cost_bearer": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "supplier",
+                            "preparation",
+                            "delivery",
+                            "store"
+                        ]
+                    },
+                    "refund_amount_minor": {
+                        "type": "integer"
+                    },
+                    "refund_completed": {
+                        "description": "Faux tant que le remboursement accordé n'est pas parti",
+                        "type": "boolean"
+                    },
+                    "decision_note": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "decided_at": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ClaimItem"
+                        }
+                    },
+                    "photos": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ClaimPhoto"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "Delivery": {
                 "required": [
                     "id",
@@ -2581,6 +3353,104 @@
                 },
                 "type": "object"
             },
+            "StockLot": {
+                "required": [
+                    "id",
+                    "product_id",
+                    "lot_code",
+                    "quantity_on_hand",
+                    "available",
+                    "is_blocked"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "product_id": {
+                        "type": "integer"
+                    },
+                    "lot_code": {
+                        "type": "string"
+                    },
+                    "expires_on": {
+                        "type": "string",
+                        "example": "2026-12-01",
+                        "nullable": true
+                    },
+                    "quantity_on_hand": {
+                        "description": "Pièces, grammes ou millilitres",
+                        "type": "integer"
+                    },
+                    "quantity_reserved": {
+                        "type": "integer"
+                    },
+                    "available": {
+                        "description": "Physique - réservé",
+                        "type": "integer"
+                    },
+                    "is_blocked": {
+                        "type": "boolean"
+                    },
+                    "recalled": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "LotRecallOrder": {
+                "required": [
+                    "order_id",
+                    "quantity"
+                ],
+                "properties": {
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "customer_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "LotRecallReport": {
+                "required": [
+                    "lot",
+                    "reason",
+                    "delivered",
+                    "reserved"
+                ],
+                "properties": {
+                    "lot": {
+                        "$ref": "#/components/schemas/StockLot"
+                    },
+                    "reason": {
+                        "type": "string"
+                    },
+                    "recalled_at": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "delivered": {
+                        "description": "Clients ayant reçu le lot : à prévenir",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LotRecallOrder"
+                        }
+                    },
+                    "reserved": {
+                        "description": "Commandes en attente qui réservent le lot : à réallouer",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LotRecallOrder"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "InvoiceLine": {
                 "required": [
                     "name",
@@ -2696,6 +3566,7 @@
             },
             "OrderLine": {
                 "required": [
+                    "id",
                     "product_id",
                     "name",
                     "quantity",
@@ -2703,6 +3574,10 @@
                     "line_total_minor"
                 ],
                 "properties": {
+                    "id": {
+                        "description": "Identifiant de la ligne (nécessaire pour déclarer une réclamation)",
+                        "type": "integer"
+                    },
                     "product_id": {
                         "type": "integer"
                     },
@@ -2724,6 +3599,11 @@
                     },
                     "line_total_minor": {
                         "type": "integer"
+                    },
+                    "received_quantity": {
+                        "description": "Quantité réellement servie après préparation (null tant que non préparée)",
+                        "type": "integer",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -2969,6 +3849,7 @@
                             "adjustment",
                             "cancellation",
                             "manual",
+                            "claim",
                             "late_payment"
                         ]
                     },
@@ -2997,6 +3878,10 @@
             "description": "Catalogue"
         },
         {
+            "name": "Réclamations",
+            "description": "Réclamations"
+        },
+        {
             "name": "Livraison",
             "description": "Livraison"
         },
@@ -3007,6 +3892,10 @@
         {
             "name": "Auth",
             "description": "Auth"
+        },
+        {
+            "name": "Stock",
+            "description": "Stock"
         },
         {
             "name": "Facturation",

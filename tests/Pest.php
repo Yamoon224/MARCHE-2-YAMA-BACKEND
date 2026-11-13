@@ -10,6 +10,7 @@ require_once __DIR__.'/Helpers/payments.php';
 require_once __DIR__.'/Helpers/fulfillment.php';
 require_once __DIR__.'/Helpers/accounting.php';
 require_once __DIR__.'/Helpers/courier.php';
+require_once __DIR__.'/Helpers/claims.php';
 
 pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Feature');
 pest()->extend(TestCase::class)->use(RefreshDatabase::class)->in('Unit/Inventory');

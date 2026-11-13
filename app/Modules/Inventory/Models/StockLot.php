@@ -7,7 +7,11 @@ namespace App\Modules\Inventory\Models;
 use App\Modules\Inventory\Database\Factories\StockLotFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $expires_on
+ */
 class StockLot extends Model
 {
     /** @use HasFactory<StockLotFactory> */

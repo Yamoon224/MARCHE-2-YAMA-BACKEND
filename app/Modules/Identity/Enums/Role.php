@@ -30,7 +30,7 @@ enum Role: string
             self::Picker => ['inventory.view', 'orders.prepare'],
             self::OrderOperator => ['orders.view', 'orders.manage', 'orders.prepare', 'delivery.manage', 'delivery.assign'],
             self::Courier => ['orders.deliver', 'delivery.courier'],
-            self::Support => ['orders.view', 'invoicing.view', 'payments.refund'],
+            self::Support => ['orders.view', 'invoicing.view', 'payments.refund', 'claims.decide'],
             self::Accountant => ['orders.view', 'invoicing.view', 'accounting.view'],
             default => [],
         };

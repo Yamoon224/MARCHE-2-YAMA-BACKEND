@@ -75,6 +75,16 @@ arch('Delivery reaches other modules only through ports, DTOs and public events'
         'App\Modules\Identity\Models', 'App\Modules\Identity\Enums', 'App\Modules\Identity\Actions', 'App\Modules\Identity\Services',
     ]);
 
+arch('Claims reaches other modules only through ports, DTOs, exceptions and contracts')
+    ->expect('App\Modules\Claims')
+    ->not->toUse([
+        'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Invoicing', 'App\Modules\Accounting',
+        'App\Modules\Fulfillment', 'App\Modules\Delivery',
+        'App\Modules\Orders\Models', 'App\Modules\Orders\Actions', 'App\Modules\Orders\Domain', 'App\Modules\Orders\Services',
+        'App\Modules\Payments\Models', 'App\Modules\Payments\Actions', 'App\Modules\Payments\Gateways', 'App\Modules\Payments\Services',
+        'App\Modules\Identity\Models', 'App\Modules\Identity\Enums', 'App\Modules\Identity\Actions', 'App\Modules\Identity\Services',
+    ]);
+
 arch('ledger and invoice models are immutable')
     ->expect([
         'App\Modules\Accounting\Models\JournalEntry', 'App\Modules\Accounting\Models\JournalLine',

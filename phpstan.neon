@@ -15,3 +15,4 @@ parameters:
         - app/Modules/Accounting/Database/Migrations
         - app/Modules/Delivery/Database/Migrations
         - app/Modules/Fulfillment/Database/Migrations
+        - app/Modules/Claims/Database/Migrations

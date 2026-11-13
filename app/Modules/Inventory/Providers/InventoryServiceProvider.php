@@ -9,6 +9,7 @@ use App\Modules\Inventory\Services\InventoryStockReservationPort;
 use App\Modules\Orders\Contracts\StockReservationPort;
 use App\Modules\Orders\Events\OrderStatusChanged;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class InventoryServiceProvider extends ServiceProvider
@@ -22,5 +23,6 @@ class InventoryServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
         Event::listen(OrderStatusChanged::class, SyncStockWithOrderStatus::class);
+        Route::prefix('api/v1')->middleware('api')->group(__DIR__.'/../routes/api.php');
     }
 }

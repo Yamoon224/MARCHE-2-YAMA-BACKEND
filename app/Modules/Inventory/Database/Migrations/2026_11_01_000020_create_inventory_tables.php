@@ -42,6 +42,15 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
         });
 
+        // Rappel de lot (alerte sanitaire) : le lot est bloqué et la décision tracée.
+        Schema::create('lot_recalls', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('stock_lot_id')->unique()->constrained('stock_lots');
+            $table->string('reason');
+            $table->unsignedBigInteger('recalled_by')->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('stock_reservations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('stock_lot_id')->constrained('stock_lots');
@@ -55,6 +64,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('stock_reservations');
+        Schema::dropIfExists('lot_recalls');
         Schema::dropIfExists('stock_movements');
         Schema::dropIfExists('stock_lots');
         Schema::dropIfExists('warehouses');
