@@ -19,7 +19,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'description', type: 'string', nullable: true),
     new OA\Property(property: 'sale_unit', type: 'string', enum: ['piece', 'kg', 'l']),
     new OA\Property(property: 'is_weight_variable', type: 'boolean'),
-    new OA\Property(property: 'price_minor', type: 'integer', description: 'Prix en plus petite unité monétaire (F CFA)'),
+    new OA\Property(property: 'price_minor', type: 'integer', description: 'Prix en centimes (EUR)'),
     new OA\Property(property: 'image_url', type: 'string', nullable: true),
     new OA\Property(property: 'compare_at_price_minor', type: 'integer', nullable: true, description: 'Ancien prix (promotion) ou null'),
     new OA\Property(property: 'is_featured', type: 'boolean', description: 'Produit mis en avant (best seller)'),

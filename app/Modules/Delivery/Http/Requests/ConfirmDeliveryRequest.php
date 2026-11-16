@@ -13,7 +13,7 @@ class ConfirmDeliveryRequest extends FormRequest
     {
         return [
             'code' => ['required', 'string', 'regex:/^\d{6}$/'],
-            // Espèces réellement encaissées en F CFA (0 si la commande était déjà payée).
+            // Espèces réellement encaissées en centimes (EUR) (0 si la commande était déjà payée).
             'cash_collected_minor' => ['required', 'integer', 'min:0', 'max:100000000'],
         ];
     }

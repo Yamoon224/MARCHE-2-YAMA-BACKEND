@@ -34,7 +34,7 @@ use OpenApi\Attributes as OA;
         'draft', 'awaiting_payment', 'payment_failed', 'paid', 'under_review', 'confirmed', 'preparing', 'ready',
         'assigned', 'out_for_delivery', 'delivery_failed', 'delivered', 'completed', 'claim', 'refunded', 'returned', 'cancelled',
     ]),
-    new OA\Property(property: 'currency', type: 'string', example: 'XOF'),
+    new OA\Property(property: 'currency', type: 'string', example: 'EUR'),
     new OA\Property(property: 'subtotal_minor', type: 'integer'),
     new OA\Property(property: 'delivery_fee_minor', type: 'integer'),
     new OA\Property(property: 'discount_minor', type: 'integer'),

@@ -149,7 +149,7 @@ it('cannot complete while articles remain to be handled', function () {
 it('refunds the difference when the weighed articles are lighter than ordered', function () {
     Event::fake([OrderTotalAdjusted::class]);
     $tomatoes = weightProduct(900);
-    $ctx = orderInPreparation([['product' => $tomatoes, 'quantity' => 1500]]); // 1 350 F CFA payés
+    $ctx = orderInPreparation([['product' => $tomatoes, 'quantity' => 1500]]); // 13,50 € payés
     $list = started($ctx);
     pick($list, $list->lines->first()->id, 1200); // 1,2 kg => 1 080
 

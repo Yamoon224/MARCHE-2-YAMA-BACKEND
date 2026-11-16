@@ -7,7 +7,7 @@ it('multiplies price by quantity for piece items', function () {
 });
 
 it('prices weight items per kilo from grams', function (int $grams, int $expected) {
-    // 900 F CFA / kg
+    // 9,00 € / kg
     expect((new LineTotalCalculator)->total('kg', 900, $grams))->toBe($expected);
 })->with([
     'one kilo' => [1000, 900],

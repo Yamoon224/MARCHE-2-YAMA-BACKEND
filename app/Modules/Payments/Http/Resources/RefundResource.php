@@ -14,7 +14,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'reference', type: 'string'),
     new OA\Property(property: 'order_id', type: 'integer'),
     new OA\Property(property: 'amount_minor', type: 'integer'),
-    new OA\Property(property: 'currency', type: 'string', example: 'XOF'),
+    new OA\Property(property: 'currency', type: 'string', example: 'EUR'),
     new OA\Property(property: 'status', type: 'string', enum: ['pending', 'succeeded', 'failed']),
     new OA\Property(property: 'kind', type: 'string', enum: ['adjustment', 'cancellation', 'manual', 'claim', 'late_payment']),
     new OA\Property(property: 'reason', type: 'string'),

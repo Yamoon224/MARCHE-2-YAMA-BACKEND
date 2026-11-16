@@ -49,7 +49,7 @@ class OrderController
                 new OA\Property(property: 'delivery', type: 'object', description: 'Obligatoire pour une livraison', required: ['zone_id', 'slot_id', 'phone', 'address'], properties: [
                     new OA\Property(property: 'zone_id', type: 'integer'),
                     new OA\Property(property: 'slot_id', type: 'integer'),
-                    new OA\Property(property: 'phone', type: 'string', example: '+2250700112233'),
+                    new OA\Property(property: 'phone', type: 'string', example: '+33612345678'),
                     new OA\Property(property: 'address', type: 'object', required: ['neighborhood'], properties: [
                         new OA\Property(property: 'neighborhood', type: 'string'),
                         new OA\Property(property: 'landmark', type: 'string', nullable: true),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Delivery\Exceptions;
 
+use App\Shared\Money;
 use DomainException;
 
 final class DeliveryNotAllowed extends DomainException
@@ -30,7 +31,7 @@ final class DeliveryNotAllowed extends DomainException
 
     public static function cashMismatch(int $due): self
     {
-        return new self("Montant encaissé incorrect : {$due} F CFA attendus.");
+        return new self('Montant encaissé incorrect : '.Money::eur($due).' attendus.');
     }
 
     public static function nothingToHandOver(): self
@@ -40,7 +41,7 @@ final class DeliveryNotAllowed extends DomainException
 
     public static function varianceNeedsNote(int $expected): self
     {
-        return new self("Le montant compté diffère des {$expected} F CFA attendus : expliquez l'écart.");
+        return new self('Le montant compté diffère des '.Money::eur($expected).' attendus : expliquez l\'écart.');
     }
 
     public static function orderNotDeliverable(): self

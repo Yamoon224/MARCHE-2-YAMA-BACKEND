@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Notifications\Domain;
 
+use App\Shared\Money;
 use InvalidArgumentException;
 
 /** Textes des notifications (français). Un type inconnu est une erreur de programmation, jamais un message vide. */
@@ -51,6 +52,6 @@ final class Templates
 
     private static function money(int $minor): string
     {
-        return number_format($minor, 0, ',', ' ').' F CFA';
+        return Money::eur($minor);
     }
 }

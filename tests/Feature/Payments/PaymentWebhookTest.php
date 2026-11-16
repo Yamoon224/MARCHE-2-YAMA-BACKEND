@@ -95,7 +95,7 @@ it('flags a wrong amount instead of paying the order', function () {
 });
 
 it('flags a wrong currency', function () {
-    sendWebhook(webhookFor($this->providerRef, 'succeeded', $this->total, 'evt-11', 'EUR'))
+    sendWebhook(webhookFor($this->providerRef, 'succeeded', $this->total, 'evt-11', 'XOF'))
         ->assertOk()->assertJsonPath('outcome', 'flagged');
 
     expect(Order::find($this->ctx['orderId'])->status)->toBe(OrderStatus::AwaitingPayment);
@@ -125,5 +125,5 @@ it('dispatches PaymentSucceeded with the verified amount', function () {
     sendWebhook(webhookFor($this->providerRef, 'succeeded', $this->total, 'evt-14'))->assertOk();
 
     Event::assertDispatched(PaymentSucceeded::class, fn ($e) => $e->paymentId === $this->paymentId
-        && $e->orderId === $this->ctx['orderId'] && $e->amountMinor === $this->total && $e->currency === 'XOF');
+        && $e->orderId === $this->ctx['orderId'] && $e->amountMinor === $this->total && $e->currency === 'EUR');
 });

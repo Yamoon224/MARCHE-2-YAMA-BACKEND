@@ -56,7 +56,7 @@ function sendWebhook(array $payload, ?string $signature = null, string $provider
     );
 }
 
-function webhookFor(string $providerReference, string $status, int $amount, string $eventId, string $currency = 'XOF'): array
+function webhookFor(string $providerReference, string $status, int $amount, string $eventId, string $currency = 'EUR'): array
 {
     return [
         'event_id' => $eventId, 'provider_reference' => $providerReference, 'status' => $status,

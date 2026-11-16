@@ -15,7 +15,7 @@ it('creates a pending payment whose amount comes from the order', function () {
         ->assertCreated()
         ->assertJsonPath('data.status', 'pending')
         ->assertJsonPath('data.amount_minor', $total)
-        ->assertJsonPath('data.currency', 'XOF');
+        ->assertJsonPath('data.currency', 'EUR');
 });
 
 it('requires authentication', function () {

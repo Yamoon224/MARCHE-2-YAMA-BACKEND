@@ -23,6 +23,7 @@ class ProductController
             new OA\Parameter(name: 'category', in: 'query', description: 'Slug du rayon', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'featured', in: 'query', description: 'Produits mis en avant uniquement', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'promo', in: 'query', description: 'Produits en promotion uniquement', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'page', in: 'query', description: 'Numéro de page (à partir de 1)', schema: new OA\Schema(type: 'integer', minimum: 1)),
             new OA\Parameter(name: 'per_page', in: 'query', description: '1 à 50 (20 par défaut)', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'q', in: 'query', description: 'Recherche par nom', schema: new OA\Schema(type: 'string')),
         ],

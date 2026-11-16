@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Produits de départ par rayon : [nom, unité (kg|piece|l), prix de base en F CFA, périssable, variantes?].
+ * Produits de départ par rayon : [nom, unité (kg|piece|l), prix de référence (converti en centimes d'euro par le seeder : ÷ 4, soit 900 = 2,25 €), périssable, variantes?].
  * Variantes : [libellé ajouté au nom, multiplicateur du prix de base]. Un produit « kg » ou « l » est vendu au poids/volume.
  */
 $v = fn (array $pairs) => $pairs;

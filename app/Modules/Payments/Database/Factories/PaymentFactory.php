@@ -25,7 +25,7 @@ class PaymentFactory extends Factory
             'method' => PaymentMethod::MobileMoney,
             'status' => PaymentStatus::Pending,
             'amount_minor' => 5000,
-            'currency' => 'XOF',
+            'currency' => 'EUR',
         ];
     }
 }

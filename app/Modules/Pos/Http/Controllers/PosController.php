@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pos\Http\Controllers;
 
+use App\Modules\Identity\Contracts\PermissionHolder;
 use App\Modules\Orders\Exceptions\InsufficientStock;
 use App\Modules\Orders\Exceptions\ProductNotOrderable;
 use App\Modules\Payments\Exceptions\PaymentNotAllowed;
@@ -74,11 +75,11 @@ class PosController
 
     #[OA\Post(
         path: '/api/v1/pos/sessions',
-        summary: "Ouvrir ma caisse avec son fonds de caisse",
+        summary: 'Ouvrir ma caisse avec son fonds de caisse',
         security: [['sanctum' => []]],
         tags: ['Caisse'],
         requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(required: ['opening_float_minor'], properties: [
-            new OA\Property(property: 'opening_float_minor', type: 'integer', description: 'Monnaie de départ dans le tiroir, en F CFA'),
+            new OA\Property(property: 'opening_float_minor', type: 'integer', description: 'Monnaie de départ dans le tiroir, en centimes (EUR)'),
         ])),
         responses: [
             new OA\Response(response: 201, description: 'Caisse ouverte', content: new OA\JsonContent(required: ['data'], properties: [new OA\Property(property: 'data', ref: '#/components/schemas/PosSession')])),
@@ -178,7 +179,7 @@ class PosController
         abort_if($user === null, 401);
 
         $own = PosSession::whereKey($found->pos_session_id)->value('cashier_id') === (int) $user->getAuthIdentifier();
-        abort_unless($own || ($user instanceof \App\Modules\Identity\Contracts\PermissionHolder && $user->hasPermission('pos.manage')), 404);
+        abort_unless($own || ($user instanceof PermissionHolder && $user->hasPermission('pos.manage')), 404);
 
         return response()->json(['data' => $this->presentSale($found)]);
     }

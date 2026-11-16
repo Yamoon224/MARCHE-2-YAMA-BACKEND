@@ -55,15 +55,15 @@ class CatalogSeeder extends Seeder
         foreach ($items as [$category, $sku, $name, $slug, $unit, $price, $oldPrice, $perishable, $featured]) {
             $products[$sku] = Product::firstOrCreate(['sku' => $sku], [
                 'category_id' => $categories[$category]->id, 'name' => $name, 'slug' => $slug, 'sale_unit' => $unit,
-                'is_weight_variable' => $unit === SaleUnit::Kilogram, 'price_minor' => $price,
-                'compare_at_price_minor' => $oldPrice, 'perishable' => $perishable, 'is_featured' => $featured,
+                'is_weight_variable' => $unit === SaleUnit::Kilogram, 'price_minor' => self::cents($price),
+                'compare_at_price_minor' => $oldPrice === null ? null : self::cents($oldPrice), 'perishable' => $perishable, 'is_featured' => $featured,
             ]);
         }
 
         $this->seedLargeCatalog($categories, array_column($items, 3));
 
         foreach ([
-            ['Les meilleurs produits, aux meilleurs prix', 'Vos courses livrées à domicile à Yama, ou à retirer en magasin.', 'Acheter maintenant', '/rayons'],
+            ['Les meilleurs produits, aux meilleurs prix', 'Vos courses livrées à Paris et en Île-de-France, ou à retirer en magasin.', 'Acheter maintenant', '/rayons'],
             ['Du frais, tous les jours', 'Fruits, légumes, viandes et poissons suivis par lot et date limite.', 'Voir les rayons', '/rayons/fruits-legumes'],
             ['Cuisinez comme chez nous', 'Tous les ingrédients d\'un plat, en un clic.', 'Découvrir les recettes', '/#recettes'],
         ] as $position => [$title, $text, $label, $url]) {
@@ -81,6 +81,12 @@ class CatalogSeeder extends Seeder
                 $recipe->items()->firstOrCreate(['product_id' => $products[$sku]->id], ['quantity' => $quantity]);
             }
         }
+    }
+
+    /** Prix de référence -> centimes d'euro (÷ 4), arrondis à 5 centimes, 10 centimes minimum. */
+    private static function cents(float|int $reference): int
+    {
+        return max(10, (int) (round($reference / 4 / 5) * 5));
     }
 
     /**
@@ -116,12 +122,12 @@ class CatalogSeeder extends Seeder
                     }
                     $slugs[$slug] = true;
 
-                    $price = max(50, (int) (round($basePrice * $multiplier / 50) * 50));
+                    $price = self::cents($basePrice * $multiplier);
 
                     Product::firstOrCreate(['sku' => $prefixes[$categorySlug].'-'.$sequence++], [
                         'category_id' => $categories[$categorySlug]->id, 'name' => $fullName, 'slug' => $slug, 'sale_unit' => $units[$unit],
                         'is_weight_variable' => $unit === 'kg', 'price_minor' => $price,
-                        'compare_at_price_minor' => $index % 11 === 0 ? (int) (ceil($price * 1.2 / 50) * 50) : null,
+                        'compare_at_price_minor' => $index % 11 === 0 ? (int) (ceil($price * 1.2 / 10) * 10) : null,
                         'perishable' => $perishable, 'is_featured' => $index % 9 === 0,
                     ]);
                 }

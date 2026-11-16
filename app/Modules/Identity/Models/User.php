@@ -19,7 +19,7 @@ class User extends Authenticatable implements PermissionHolder
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory;
 
-    protected $fillable = ['name', 'email', 'phone', 'password', 'role', 'locale'];
+    protected $fillable = ['name', 'email', 'phone', 'password', 'role', 'locale', 'is_guest', 'contact_email', 'contact_phone'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -34,6 +34,7 @@ class User extends Authenticatable implements PermissionHolder
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => Role::class,
+            'is_guest' => 'boolean',
         ];
     }
 

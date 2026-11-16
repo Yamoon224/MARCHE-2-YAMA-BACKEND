@@ -21,7 +21,7 @@ class DemoSeeder extends Seeder
         }
 
         User::firstOrCreate(['email' => 'client@marche-yama.test'], [
-            'name' => 'Awa Koné', 'phone' => '+2250700000001', 'password' => 'password', 'role' => Role::Customer,
+            'name' => 'Awa Koné', 'phone' => '+33600000001', 'password' => 'password', 'role' => Role::Customer,
         ]);
         User::firstOrCreate(['email' => 'operateur@marche-yama.test'], [
             'name' => 'Opérateur', 'password' => 'password', 'role' => Role::OrderOperator,
@@ -39,7 +39,7 @@ class DemoSeeder extends Seeder
             'name' => 'Koffi Livreur', 'password' => 'password', 'role' => Role::Courier,
         ]);
 
-        $warehouse = Warehouse::firstOrCreate(['code' => 'MG-PLATEAU'], ['name' => 'Magasin Plateau']);
+        $warehouse = Warehouse::firstOrCreate(['code' => ReferenceSeeder::WAREHOUSE_CODE], ['name' => 'Entrepôt Paris']);
 
         foreach (Product::all() as $product) {
             StockLot::firstOrCreate(
@@ -48,8 +48,8 @@ class DemoSeeder extends Seeder
             );
         }
 
-        $zone = DeliveryZone::firstOrCreate(['name' => 'Cocody'], [
-            'fee_minor' => 1500, 'free_above_minor' => 20000, 'min_order_minor' => 2000,
+        $zone = DeliveryZone::firstOrCreate(['name' => 'Paris (75)'], [
+            'fee_minor' => 490, 'free_above_minor' => 5000, 'min_order_minor' => 2000,
         ]);
 
         foreach ([1, 2, 3] as $day) {

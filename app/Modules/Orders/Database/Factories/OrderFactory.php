@@ -19,7 +19,7 @@ class OrderFactory extends Factory
             'number' => 'CMD-'.fake()->unique()->numerify('########'),
             'user_id' => null,
             'status' => OrderStatus::AwaitingPayment,
-            'currency' => 'XOF',
+            'currency' => 'EUR',
             'subtotal_minor' => 5000,
             'delivery_fee_minor' => 0,
             'discount_minor' => 0,

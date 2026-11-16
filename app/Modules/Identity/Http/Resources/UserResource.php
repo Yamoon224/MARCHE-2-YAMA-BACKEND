@@ -15,6 +15,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'email', type: 'string', nullable: true),
     new OA\Property(property: 'phone', type: 'string', nullable: true),
     new OA\Property(property: 'role', type: 'string'),
+    new OA\Property(property: 'is_guest', type: 'boolean', description: 'Client sans compte (commande invité)'),
 ])]
 #[OA\Schema(schema: 'AuthResult', required: ['user', 'token'], properties: [
     new OA\Property(property: 'user', ref: '#/components/schemas/User'),
@@ -32,6 +33,7 @@ class UserResource extends JsonResource
             'email' => $this->resource->email,
             'phone' => $this->resource->phone,
             'role' => $this->resource->role->value,
+            'is_guest' => $this->resource->is_guest,
         ];
     }
 }

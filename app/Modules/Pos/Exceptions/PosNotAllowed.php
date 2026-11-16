@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pos\Exceptions;
 
+use App\Shared\Money;
 use DomainException;
 
 final class PosNotAllowed extends DomainException
@@ -30,11 +31,11 @@ final class PosNotAllowed extends DomainException
 
     public static function insufficientTender(int $total): self
     {
-        return new self("Le montant reçu est insuffisant : {$total} F CFA à encaisser.");
+        return new self('Le montant reçu est insuffisant : '.Money::eur($total).' à encaisser.');
     }
 
     public static function varianceNeedsNote(int $expected): self
     {
-        return new self("Le montant compté diffère des {$expected} F CFA attendus : expliquez l'écart.");
+        return new self('Le montant compté diffère des '.Money::eur($expected).' attendus : expliquez l\'écart.');
     }
 }

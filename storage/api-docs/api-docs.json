@@ -817,6 +817,15 @@
                         }
                     },
                     {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Numéro de page (à partir de 1)",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
                         "name": "per_page",
                         "in": "query",
                         "description": "1 à 50 (20 par défaut)",
@@ -1512,7 +1521,7 @@
                                         "type": "integer"
                                     },
                                     "counted_minor": {
-                                        "description": "Montant compté en F CFA",
+                                        "description": "Montant compté en centimes (EUR)",
                                         "type": "integer"
                                     },
                                     "note": {
@@ -2829,7 +2838,7 @@
                                     },
                                     "phone": {
                                         "type": "string",
-                                        "example": "+2250700000000"
+                                        "example": "+33612345678"
                                     },
                                     "password": {
                                         "type": "string",
@@ -2844,6 +2853,59 @@
                 "responses": {
                     "201": {
                         "description": "Compte créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResult"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/guest": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Commander sans compte : ouvre une session invité",
+                "operationId": "8e0eba98d782f73443316db3f7cecad4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Awa Koné"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "awa@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+33612345678"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Session invité",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3417,7 +3479,7 @@
                                             },
                                             "phone": {
                                                 "type": "string",
-                                                "example": "+2250700112233"
+                                                "example": "+33612345678"
                                             },
                                             "address": {
                                                 "required": [
@@ -4010,7 +4072,7 @@
                                 ],
                                 "properties": {
                                     "opening_float_minor": {
-                                        "description": "Monnaie de départ dans le tiroir, en F CFA",
+                                        "description": "Monnaie de départ dans le tiroir, en centimes (EUR)",
                                         "type": "integer"
                                     }
                                 },
@@ -4540,7 +4602,7 @@
                         "type": "boolean"
                     },
                     "price_minor": {
-                        "description": "Prix en plus petite unité monétaire (F CFA)",
+                        "description": "Prix en centimes (EUR)",
                         "type": "integer"
                     },
                     "image_url": {
@@ -5145,6 +5207,10 @@
                     },
                     "role": {
                         "type": "string"
+                    },
+                    "is_guest": {
+                        "description": "Client sans compte (commande invité)",
+                        "type": "boolean"
                     }
                 },
                 "type": "object"
@@ -5515,7 +5581,7 @@
                     },
                     "currency": {
                         "type": "string",
-                        "example": "XOF"
+                        "example": "EUR"
                     },
                     "subtotal_minor": {
                         "type": "integer"
@@ -5644,7 +5710,7 @@
                     },
                     "currency": {
                         "type": "string",
-                        "example": "XOF"
+                        "example": "EUR"
                     }
                 },
                 "type": "object"
@@ -5675,7 +5741,7 @@
                     },
                     "currency": {
                         "type": "string",
-                        "example": "XOF"
+                        "example": "EUR"
                     },
                     "status": {
                         "type": "string",

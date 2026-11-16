@@ -57,7 +57,7 @@ it('tells the customer when they are refunded after a cancellation', function ()
     expect($types)->toContain('order_cancelled')->and($types)->toContain('refund_sent');
 
     $refund = UserNotification::where('user_id', $ctx['customer']->id)->where('type', 'refund_sent')->firstOrFail();
-    expect($refund->body)->toContain('10 000 F CFA');
+    expect($refund->body)->toContain('100,00 €');
 });
 
 it('stores the recipient encrypted and never exposes it', function () {

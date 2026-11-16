@@ -16,7 +16,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'method', type: 'string', enum: ['mobile_money', 'card', 'cash_on_delivery']),
     new OA\Property(property: 'status', type: 'string', enum: ['pending', 'pending_on_delivery', 'succeeded', 'failed', 'flagged']),
     new OA\Property(property: 'amount_minor', type: 'integer'),
-    new OA\Property(property: 'currency', type: 'string', example: 'XOF'),
+    new OA\Property(property: 'currency', type: 'string', example: 'EUR'),
 ])]
 /** @property Payment $resource */
 class PaymentResource extends JsonResource

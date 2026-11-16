@@ -28,7 +28,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('sale_unit', 10)->default('piece');
             $table->boolean('is_weight_variable')->default(false);
-            // Montant en plus petite unité monétaire (F CFA : 1 unité), prix par unité de vente.
+            // Montant en plus petite unité monétaire (centimes (EUR)), prix par unité de vente.
             $table->unsignedBigInteger('price_minor');
             $table->unsignedSmallInteger('vat_rate_bp')->default(0); // points de base : 1800 = 18 %
             $table->boolean('perishable')->default(false);

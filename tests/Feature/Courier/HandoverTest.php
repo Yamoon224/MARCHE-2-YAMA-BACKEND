@@ -114,7 +114,7 @@ it('expects no cash for an order already paid online', function () {
     $courier = outForDelivery($ctx['delivery']);
 
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 500)
-        ->assertUnprocessable()->assertJsonPath('errors.delivery.0', 'Montant encaissé incorrect : 0 F CFA attendus.');
+        ->assertUnprocessable()->assertJsonPath('errors.delivery.0', 'Montant encaissé incorrect : 0,00 € attendus.');
     expect(Order::find($ctx['order']->id)->status)->toBe(OrderStatus::OutForDelivery);
 });
 
@@ -126,7 +126,7 @@ it('collects exactly the cash due for a cash on delivery order and books it in t
     $this->actingAs($courier, 'sanctum')->getJson('/api/v1/delivery/my-tour')->assertJsonPath('data.0.cash_due_minor', 11500);
 
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 11000)
-        ->assertUnprocessable()->assertJsonPath('errors.delivery.0', 'Montant encaissé incorrect : 11500 F CFA attendus.');
+        ->assertUnprocessable()->assertJsonPath('errors.delivery.0', 'Montant encaissé incorrect : 115,00 € attendus.');
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 0)->assertUnprocessable();
 
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 11500)->assertOk();
@@ -155,7 +155,7 @@ it('collects the real total of a cash on delivery order after a lighter weighing
     app(GenerateCreditNoteAction::class)->execute($ctx['order']->id, 5000, 'Écart de préparation', "adjustment:order:{$ctx['order']->id}");
     $courier = outForDelivery($ctx['delivery']);
 
-    confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 11500)->assertUnprocessable()->assertJsonPath('errors.delivery.0', 'Montant encaissé incorrect : 6500 F CFA attendus.');
+    confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 11500)->assertUnprocessable()->assertJsonPath('errors.delivery.0', 'Montant encaissé incorrect : 65,00 € attendus.');
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code, 6500)->assertOk();
 
     expect(ledger('5715'))->toBe(6500)->and(ledger('411'))->toBe(0)->and(ledgerIsBalanced())->toBeTrue();

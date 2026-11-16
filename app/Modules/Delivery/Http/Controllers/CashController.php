@@ -74,7 +74,7 @@ class CashController
             required: ['courier_id', 'counted_minor'],
             properties: [
                 new OA\Property(property: 'courier_id', type: 'integer'),
-                new OA\Property(property: 'counted_minor', type: 'integer', description: 'Montant compté en F CFA'),
+                new OA\Property(property: 'counted_minor', type: 'integer', description: 'Montant compté en centimes (EUR)'),
                 new OA\Property(property: 'note', type: 'string', nullable: true, description: "Obligatoire s'il y a un écart"),
             ],
         )),
