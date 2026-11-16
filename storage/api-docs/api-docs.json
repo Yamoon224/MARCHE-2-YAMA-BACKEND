@@ -88,6 +88,695 @@
                 ]
             }
         },
+        "/api/v1/catalog/banners": {
+            "get": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Toutes les bannières (actives ou non)",
+                "operationId": "4dde79e7b9089be3d0c99d41cc5d8613",
+                "responses": {
+                    "200": {
+                        "description": "Bannières",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Banner"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Créer une bannière",
+                "operationId": "ae8480ba9de85e878c8b5da083387e53",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BannerInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Bannière créée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Banner"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/banners/{banner}": {
+            "put": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Modifier une bannière",
+                "operationId": "94cc482fea2de3ef205e86ee518f6a27",
+                "parameters": [
+                    {
+                        "name": "banner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BannerInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bannière modifiée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Banner"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Supprimer une bannière",
+                "operationId": "2d00ddde36bc34f618790d1993e2ec86",
+                "parameters": [
+                    {
+                        "name": "banner",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/categories": {
+            "get": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Tous les rayons (actifs ou non)",
+                "operationId": "3393fc32bfa6e9b6442187066de85e70",
+                "responses": {
+                    "200": {
+                        "description": "Rayons",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Category"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Créer un rayon",
+                "operationId": "ac04aad667c245bd75e70b3594efb695",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CategoryInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Rayon créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Category"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/categories/{category}": {
+            "put": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Modifier un rayon",
+                "operationId": "5475f3227198d2264ec5058a1d3a25a7",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CategoryInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rayon modifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Category"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Supprimer un rayon vide",
+                "operationId": "d6818145ed23ada3ddc1851ecdf816b3",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    },
+                    "422": {
+                        "description": "Le rayon contient encore des produits"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/media": {
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Téléverser une image du catalogue",
+                "operationId": "3e9512426240b787fbb69e96d2e77988",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "image"
+                                ],
+                                "properties": {
+                                    "image": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Image enregistrée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/MediaUpload"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Fichier refusé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products": {
+            "get": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Tous les produits (actifs ou non)",
+                "operationId": "c8e1cbf07f837777b8f3f44970de2c44",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "1 à 200 (30 par défaut)",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produits paginés",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductPage"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products/{product}": {
+            "put": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Modifier un produit (prix, promotion, image, visibilité)",
+                "operationId": "9acd1a7f306b624ff8e264322874fa57",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Produit modifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/recipes": {
+            "get": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Toutes les recettes (actives ou non)",
+                "operationId": "516f4e4beb1cbb9d46d9e88b6dfd7273",
+                "responses": {
+                    "200": {
+                        "description": "Recettes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Recipe"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Créer une recette",
+                "operationId": "2b56bef52c9afada706c089c82079629",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipeInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Recette créée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Recipe"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/recipes/{recipe}": {
+            "put": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Modifier une recette",
+                "operationId": "d84de50c42387b426f0122f7a9f7e87b",
+                "parameters": [
+                    {
+                        "name": "recipe",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecipeInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Recette modifiée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Recipe"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Supprimer une recette",
+                "operationId": "509e4d915a7d095580f6cbf24334020c",
+                "parameters": [
+                    {
+                        "name": "recipe",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/banners": {
+            "get": {
+                "tags": [
+                    "Catalogue"
+                ],
+                "summary": "Bannières actives de la page d'accueil",
+                "operationId": "93a07e331a33af8481f939b7f9825c17",
+                "responses": {
+                    "200": {
+                        "description": "Bannières",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Banner"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/categories": {
+            "get": {
+                "tags": [
+                    "Catalogue"
+                ],
+                "summary": "Rayons actifs, dans l'ordre d'affichage",
+                "operationId": "0713536d5da2be7b76f7fe74f43c9494",
+                "responses": {
+                    "200": {
+                        "description": "Rayons",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Category"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/products": {
             "get": {
                 "tags": [
@@ -99,6 +788,38 @@
                     {
                         "name": "category_id",
                         "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Slug du rayon",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "featured",
+                        "in": "query",
+                        "description": "Produits mis en avant uniquement",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "promo",
+                        "in": "query",
+                        "description": "Produits en promotion uniquement",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "1 à 50 (20 par défaut)",
                         "schema": {
                             "type": "integer"
                         }
@@ -196,6 +917,35 @@
                     },
                     "404": {
                         "description": "Introuvable"
+                    }
+                }
+            }
+        },
+        "/api/v1/recipes": {
+            "get": {
+                "tags": [
+                    "Catalogue"
+                ],
+                "summary": "Recettes actives avec leurs ingrédients",
+                "operationId": "a470975f9027df58356b517c72b56c90",
+                "responses": {
+                    "200": {
+                        "description": "Recettes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Recipe"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3162,10 +3912,589 @@
                     }
                 }
             }
+        },
+        "/api/v1/pos/sessions/current": {
+            "get": {
+                "tags": [
+                    "Caisse"
+                ],
+                "summary": "Ma caisse ouverte (ou rien si elle est fermée)",
+                "operationId": "157f911eaaee461f85d7974c392ef448",
+                "responses": {
+                    "200": {
+                        "description": "Caisse ouverte ou null",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/PosSession"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "nullable": true,
+                                                    "enum": [
+                                                        null
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pos/sessions": {
+            "get": {
+                "tags": [
+                    "Caisse"
+                ],
+                "summary": "Historique des caisses (responsables)",
+                "operationId": "5f1288743eb09e58ed7f5b4212a5322a",
+                "responses": {
+                    "200": {
+                        "description": "Caisses, les plus récentes en premier",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PosSession"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Caisse"
+                ],
+                "summary": "Ouvrir ma caisse avec son fonds de caisse",
+                "operationId": "caa917025f7235047b69ed6612caea9a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "opening_float_minor"
+                                ],
+                                "properties": {
+                                    "opening_float_minor": {
+                                        "description": "Monnaie de départ dans le tiroir, en F CFA",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Caisse ouverte",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PosSession"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Caisse déjà ouverte"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pos/sessions/{session}/close": {
+            "post": {
+                "tags": [
+                    "Caisse"
+                ],
+                "summary": "Fermer ma caisse après comptage du tiroir",
+                "operationId": "bff681e8eeccc90ff666f6bfe54bc868",
+                "parameters": [
+                    {
+                        "name": "session",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "counted_minor"
+                                ],
+                                "properties": {
+                                    "counted_minor": {
+                                        "type": "integer"
+                                    },
+                                    "note": {
+                                        "description": "Obligatoire s'il y a un écart",
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Caisse fermée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PosSession"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Déjà fermée, ou écart non expliqué"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pos/sales": {
+            "post": {
+                "tags": [
+                    "Caisse"
+                ],
+                "summary": "Encaisser une vente au comptoir (commande, paiement et remise en une opération)",
+                "operationId": "06e674ada45e6112c496aec892048126",
+                "parameters": [
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 64
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "items",
+                                    "tender"
+                                ],
+                                "properties": {
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "product_id",
+                                                "quantity"
+                                            ],
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer"
+                                                },
+                                                "quantity": {
+                                                    "description": "Pièces, grammes ou millilitres",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "tender": {
+                                        "type": "string",
+                                        "enum": [
+                                            "cash",
+                                            "mobile_money",
+                                            "card"
+                                        ]
+                                    },
+                                    "tendered_minor": {
+                                        "description": "Espèces remises par le client (pour la monnaie)",
+                                        "type": "integer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Vente enregistrée",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PosSale"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Vente déjà enregistrée (rejeu de la même clé)"
+                    },
+                    "422": {
+                        "description": "Caisse fermée, stock insuffisant, montant reçu insuffisant"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/pos/sales/{sale}": {
+            "get": {
+                "tags": [
+                    "Caisse"
+                ],
+                "summary": "Ticket de caisse (réimpression)",
+                "operationId": "88fd582564d3b98751f51fad527c7ca2",
+                "parameters": [
+                    {
+                        "name": "sale",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Vente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PosSale"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable (ou vente d'un autre caissier)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
         "schemas": {
+            "CategoryInput": {
+                "required": [
+                    "name",
+                    "slug"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "BannerInput": {
+                "required": [
+                    "title",
+                    "cta_label",
+                    "cta_url"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cta_label": {
+                        "type": "string"
+                    },
+                    "cta_url": {
+                        "type": "string"
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "RecipeInput": {
+                "required": [
+                    "name",
+                    "slug"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "items": {
+                        "description": "Ingrédients : remplace la liste existante si fournie",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "product_id",
+                                "quantity"
+                            ],
+                            "properties": {
+                                "product_id": {
+                                    "type": "integer"
+                                },
+                                "quantity": {
+                                    "description": "Unité de base : pièces, grammes ou millilitres",
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ProductUpdate": {
+                "properties": {
+                    "category_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price_minor": {
+                        "type": "integer"
+                    },
+                    "compare_at_price_minor": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "is_featured": {
+                        "type": "boolean"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "MediaUpload": {
+                "required": [
+                    "url"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Banner": {
+                "required": [
+                    "id",
+                    "title",
+                    "cta_label",
+                    "cta_url"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "text": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "cta_label": {
+                        "type": "string"
+                    },
+                    "cta_url": {
+                        "type": "string"
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "Category": {
+                "required": [
+                    "id",
+                    "name",
+                    "slug"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
             "Product": {
                 "required": [
                     "id",
@@ -3214,6 +4543,19 @@
                         "description": "Prix en plus petite unité monétaire (F CFA)",
                         "type": "integer"
                     },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "compare_at_price_minor": {
+                        "description": "Ancien prix (promotion) ou null",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "is_featured": {
+                        "description": "Produit mis en avant (best seller)",
+                        "type": "boolean"
+                    },
                     "vat_rate_bp": {
                         "description": "Taux de TVA en points de base",
                         "type": "integer"
@@ -3254,6 +4596,84 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "RecipeItem": {
+                "required": [
+                    "product_id",
+                    "name",
+                    "sale_unit",
+                    "unit_price_minor",
+                    "quantity"
+                ],
+                "properties": {
+                    "product_id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "sale_unit": {
+                        "type": "string",
+                        "enum": [
+                            "piece",
+                            "kg",
+                            "l"
+                        ]
+                    },
+                    "unit_price_minor": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "description": "Unité de base : pièces, grammes ou millilitres",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "Recipe": {
+                "required": [
+                    "id",
+                    "name",
+                    "slug",
+                    "total_minor",
+                    "items"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "total_minor": {
+                        "description": "Prix indicatif de tous les ingrédients",
+                        "type": "integer"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecipeItem"
+                        }
                     }
                 },
                 "type": "object"
@@ -4280,6 +5700,145 @@
                     }
                 },
                 "type": "object"
+            },
+            "PosSession": {
+                "required": [
+                    "id",
+                    "cashier_id",
+                    "opening_float_minor",
+                    "sales_count",
+                    "cash_sales_minor",
+                    "other_sales_minor",
+                    "expected_cash_minor",
+                    "is_open"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "cashier_id": {
+                        "type": "integer"
+                    },
+                    "opening_float_minor": {
+                        "type": "integer"
+                    },
+                    "sales_count": {
+                        "type": "integer"
+                    },
+                    "cash_sales_minor": {
+                        "type": "integer"
+                    },
+                    "other_sales_minor": {
+                        "description": "Mobile money et carte (hors tiroir)",
+                        "type": "integer"
+                    },
+                    "expected_cash_minor": {
+                        "description": "Fonds de caisse + ventes en espèces",
+                        "type": "integer"
+                    },
+                    "counted_minor": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "variance_minor": {
+                        "description": "Compté - attendu : négatif = manquant",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "note": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "is_open": {
+                        "type": "boolean"
+                    },
+                    "opened_at": {
+                        "type": "string"
+                    },
+                    "closed_at": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PosReceiptLine": {
+                "required": [
+                    "name",
+                    "quantity",
+                    "sale_unit",
+                    "unit_price_minor",
+                    "line_total_minor"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    },
+                    "sale_unit": {
+                        "type": "string"
+                    },
+                    "unit_price_minor": {
+                        "type": "integer"
+                    },
+                    "line_total_minor": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "PosSale": {
+                "required": [
+                    "id",
+                    "order_id",
+                    "order_number",
+                    "tender",
+                    "total_minor",
+                    "tendered_minor",
+                    "change_minor",
+                    "lines",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "order_id": {
+                        "type": "integer"
+                    },
+                    "order_number": {
+                        "type": "string"
+                    },
+                    "tender": {
+                        "type": "string",
+                        "enum": [
+                            "cash",
+                            "mobile_money",
+                            "card"
+                        ]
+                    },
+                    "total_minor": {
+                        "type": "integer"
+                    },
+                    "tendered_minor": {
+                        "type": "integer"
+                    },
+                    "change_minor": {
+                        "type": "integer"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PosReceiptLine"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -4294,6 +5853,10 @@
         {
             "name": "Comptabilité",
             "description": "Comptabilité"
+        },
+        {
+            "name": "Catalogue (gestion)",
+            "description": "Catalogue (gestion)"
         },
         {
             "name": "Catalogue",
@@ -4334,6 +5897,10 @@
         {
             "name": "Paiements",
             "description": "Paiements"
+        },
+        {
+            "name": "Caisse",
+            "description": "Caisse"
         }
     ]
 }
