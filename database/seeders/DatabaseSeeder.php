@@ -2,23 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Modules\Identity\Enums\Role;
-use App\Modules\Identity\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Comptes et données de démonstration : jamais en production (mot de passe connu).
-        if (! app()->isProduction()) {
-            User::factory()->role(Role::Admin)->create([
-                'name' => 'Administrateur',
-                'email' => 'admin@marche-yama.test',
-                'password' => 'password',
-            ]);
+        // Données préliminaires, rejouables sans risque et valables en production.
+        $this->call([AdminSeeder::class, ReferenceSeeder::class, CatalogSeeder::class]);
 
-            $this->call(CatalogSeeder::class);
+        // Comptes de test et stock fictif : jamais en production (mots de passe connus).
+        if (! app()->isProduction()) {
             $this->call(DemoSeeder::class);
         }
     }
