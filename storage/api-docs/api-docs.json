@@ -2920,6 +2920,62 @@
                 }
             }
         },
+        "/api/v1/auth/claim-account": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Transformer une session invité en compte (e-mail de la commande + mot de passe choisi)",
+                "operationId": "1e9145af49124db5a3781b7f14d0aa4a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié"
+                    },
+                    "422": {
+                        "description": "Mot de passe invalide, déjà un compte, ou e-mail déjà utilisé"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/auth/login": {
             "post": {
                 "tags": [
@@ -3543,6 +3599,62 @@
                 ]
             }
         },
+        "/api/v1/orders/lookup": {
+            "post": {
+                "tags": [
+                    "Commandes"
+                ],
+                "summary": "Suivre une commande avec son numéro et l'e-mail de la commande (sans compte)",
+                "operationId": "a6405961adb22b4952ff61c1862b712f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "number",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "number": {
+                                        "type": "string",
+                                        "example": "CMD-00000123"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "awa@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Commande",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Order"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Aucune commande ne correspond"
+                    },
+                    "429": {
+                        "description": "Trop de tentatives"
+                    }
+                }
+            }
+        },
         "/api/v1/orders/{order}": {
             "get": {
                 "tags": [
@@ -3730,6 +3842,9 @@
                     },
                     "422": {
                         "description": "Commande non payable"
+                    },
+                    "503": {
+                        "description": "Paiement par carte indisponible (agrégateur non configuré ou injoignable)"
                     }
                 },
                 "security": [
@@ -3953,7 +4068,8 @@
                     {
                         "name": "X-Signature",
                         "in": "header",
-                        "required": true,
+                        "description": "Signature HMAC (simulateur) ; Stripe envoie Stripe-Signature",
+                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -5711,6 +5827,11 @@
                     "currency": {
                         "type": "string",
                         "example": "EUR"
+                    },
+                    "action_url": {
+                        "description": "Page de paiement hébergée où rediriger le client (paiement par carte en attente)",
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"

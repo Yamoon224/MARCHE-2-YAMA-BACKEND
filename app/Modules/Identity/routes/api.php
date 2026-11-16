@@ -8,6 +8,7 @@ Route::prefix('auth')->group(function () {
     Route::post('guest', [AuthController::class, 'guest'])->middleware('throttle:10,1');
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:20,1');
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('claim-account', [AuthController::class, 'claimAccount'])->middleware('throttle:10,1');
         Route::get('me', [AuthController::class, 'me']);
         Route::post('logout', [AuthController::class, 'logout']);
     });

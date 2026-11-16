@@ -83,7 +83,8 @@ class OrderResource extends JsonResource
             ])->all() : [],
             'history' => $order->relationLoaded('history') ? $order->history->map(fn ($h) => [
                 'from_status' => $h->from_status, 'to_status' => $h->to_status, 'reason' => $h->reason,
-                'user_id' => $h->user_id, 'created_at' => $h->created_at?->toIso8601String(),
+                // Suivi public : jamais l'identifiant interne du personnel.
+                'user_id' => $request->is('api/v1/orders/lookup') ? null : $h->user_id, 'created_at' => $h->created_at?->toIso8601String(),
             ])->all() : [],
         ];
     }

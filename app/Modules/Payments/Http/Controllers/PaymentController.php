@@ -7,6 +7,7 @@ namespace App\Modules\Payments\Http\Controllers;
 use App\Modules\Payments\Actions\InitiatePaymentAction;
 use App\Modules\Payments\Actions\ValidateCashOnDeliveryAction;
 use App\Modules\Payments\Enums\PaymentMethod;
+use App\Modules\Payments\Exceptions\GatewayFailure;
 use App\Modules\Payments\Exceptions\PaymentNotAllowed;
 use App\Modules\Payments\Http\Requests\InitiatePaymentRequest;
 use App\Modules\Payments\Http\Resources\PaymentResource;
@@ -35,6 +36,7 @@ class PaymentController
             new OA\Response(response: 201, description: 'Paiement créé', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/Payment')])),
             new OA\Response(response: 404, description: 'Commande introuvable'),
             new OA\Response(response: 422, description: 'Commande non payable'),
+            new OA\Response(response: 503, description: 'Paiement par carte indisponible (agrégateur non configuré ou injoignable)'),
         ],
     )]
     public function store(InitiatePaymentRequest $request, int $orderId, InitiatePaymentAction $action): JsonResponse
@@ -52,6 +54,9 @@ class PaymentController
         } catch (PaymentNotAllowed $e) {
             abort_if($e->getMessage() === PaymentNotAllowed::orderNotFound()->getMessage(), 404, $e->getMessage());
             throw ValidationException::withMessages(['order' => [$e->getMessage()]]);
+        } catch (GatewayFailure $e) {
+            // Agrégateur non configuré ou injoignable : la commande reste en attente, le client pourra réessayer.
+            return response()->json(['message' => $e->getMessage()], 503);
         }
 
         return (new PaymentResource($payment))->response()->setStatusCode($payment->wasRecentlyCreated ? 201 : 200);

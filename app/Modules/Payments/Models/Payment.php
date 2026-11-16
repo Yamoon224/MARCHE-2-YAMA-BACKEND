@@ -20,7 +20,7 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'reference', 'order_id', 'provider', 'provider_reference', 'method', 'status',
+        'reference', 'order_id', 'provider', 'provider_reference', 'action_url', 'method', 'status',
         'amount_minor', 'currency', 'idempotency_key', 'needs_refund', 'note',
     ];
 

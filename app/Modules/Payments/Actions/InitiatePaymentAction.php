@@ -56,11 +56,11 @@ final class InitiatePaymentAction
         }
 
         $gateway = $this->gateways->default();
-        $charge = $gateway->charge($reference, $order->totalMinor, $order->currency, $method);
+        $charge = $gateway->charge($reference, $order->totalMinor, $order->currency, $method, ['order_id' => $orderId]);
 
         return Payment::create([
             'reference' => $reference, 'order_id' => $orderId, 'provider' => $gateway->name(),
-            'provider_reference' => $charge->providerReference, 'method' => $method,
+            'provider_reference' => $charge->providerReference, 'action_url' => $charge->actionUrl, 'method' => $method,
             'status' => PaymentStatus::Pending, 'amount_minor' => $order->totalMinor,
             'currency' => $order->currency, 'idempotency_key' => $idempotencyKey,
         ]);

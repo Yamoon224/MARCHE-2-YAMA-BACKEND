@@ -10,6 +10,7 @@ use App\Modules\Payments\Enums\PaymentStatus;
 use App\Modules\Payments\Enums\RefundKind;
 use App\Modules\Payments\Enums\WebhookOutcome;
 use App\Modules\Payments\Events\PaymentSucceeded;
+use App\Modules\Payments\Exceptions\IgnoredWebhook;
 use App\Modules\Payments\Exceptions\InvalidWebhook;
 use App\Modules\Payments\Gateways\GatewayRegistry;
 use App\Modules\Payments\Models\Payment;
@@ -39,7 +40,13 @@ final class ProcessWebhookAction
             throw InvalidWebhook::badSignature();
         }
 
-        $event = $gateway->parseWebhook($rawBody);
+        try {
+            $event = $gateway->parseWebhook($rawBody);
+        } catch (IgnoredWebhook) {
+            // Événement authentique mais sans effet pour nous : accusé de réception, sans trace métier.
+            return WebhookOutcome::Ignored;
+        }
+
         $succeededPayment = null;
 
         try {

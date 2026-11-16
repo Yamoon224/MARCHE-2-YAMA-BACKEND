@@ -18,7 +18,7 @@ class WebhookController
         tags: ['Paiements'],
         parameters: [
             new OA\Parameter(name: 'provider', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: 'fake')),
-            new OA\Parameter(name: 'X-Signature', in: 'header', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'X-Signature', in: 'header', required: false, description: 'Signature HMAC (simulateur) ; Stripe envoie Stripe-Signature', schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(response: 200, description: 'Événement pris en compte (ou déjà traité)'),
@@ -30,7 +30,7 @@ class WebhookController
     public function handle(Request $request, ProcessWebhookAction $action, string $provider): JsonResponse
     {
         try {
-            $outcome = $action->execute($provider, $request->getContent(), $request->header('X-Signature'));
+            $outcome = $action->execute($provider, $request->getContent(), $request->header('X-Signature') ?? $request->header('Stripe-Signature'));
         } catch (InvalidWebhook $e) {
             $status = match (true) {
                 str_contains($e->getMessage(), 'Signature') => 401,

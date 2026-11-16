@@ -26,6 +26,7 @@ final class GatewayRegistry
         /** @var class-string<PaymentGateway> $driver */
         $driver = $config['driver'];
 
-        return new $driver((string) $config['secret']);
+        // Un driver à configuration riche (clé d'API, adresse de retour…) se construit lui-même.
+        return method_exists($driver, 'fromConfig') ? $driver::fromConfig($config) : new $driver((string) $config['secret']);
     }
 }

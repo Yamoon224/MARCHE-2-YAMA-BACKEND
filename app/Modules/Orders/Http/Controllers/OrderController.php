@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Orders\Http\Controllers;
 
+use App\Modules\Identity\Contracts\ContactDirectory;
 use App\Modules\Identity\Contracts\PermissionHolder;
 use App\Modules\Orders\Actions\PlaceOrderAction;
 use App\Modules\Orders\Actions\TransitionOrderAction;
@@ -14,6 +15,7 @@ use App\Modules\Orders\Exceptions\DeliveryUnavailable;
 use App\Modules\Orders\Exceptions\InsufficientStock;
 use App\Modules\Orders\Exceptions\InvalidOrderTransition;
 use App\Modules\Orders\Exceptions\ProductNotOrderable;
+use App\Modules\Orders\Http\Requests\LookupOrderRequest;
 use App\Modules\Orders\Http\Requests\PlaceOrderRequest;
 use App\Modules\Orders\Http\Requests\TransitionOrderRequest;
 use App\Modules\Orders\Http\Resources\OrderResource;
@@ -87,6 +89,37 @@ class OrderController
         }
 
         return (new OrderResource($order))->response()->setStatusCode($order->wasRecentlyCreated ? 201 : 200);
+    }
+
+    #[OA\Post(
+        path: '/api/v1/orders/lookup',
+        summary: 'Suivre une commande avec son numéro et l\'e-mail de la commande (sans compte)',
+        tags: ['Commandes'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['number', 'email'],
+            properties: [
+                new OA\Property(property: 'number', type: 'string', example: 'CMD-00000123'),
+                new OA\Property(property: 'email', type: 'string', example: 'awa@example.com'),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'Commande', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/Order')])),
+            new OA\Response(response: 404, description: 'Aucune commande ne correspond'),
+            new OA\Response(response: 429, description: 'Trop de tentatives'),
+        ],
+    )]
+    public function lookup(LookupOrderRequest $request, ContactDirectory $contacts): OrderResource
+    {
+        $order = Order::query()->where('number', trim($request->string('number')->toString()))->first();
+        $ownerEmail = $order?->user_id ? ($contacts->contactOf((int) $order->user_id)['email'] ?? null) : null;
+
+        // Même réponse que le numéro soit inconnu ou l'e-mail incorrect : on ne révèle pas l'existence d'une commande.
+        $matches = $ownerEmail !== null
+            && hash_equals(mb_strtolower($ownerEmail), mb_strtolower(trim($request->string('email')->toString())));
+
+        abort_unless($matches, 404, 'Aucune commande ne correspond à ces informations.');
+
+        return new OrderResource($order->load(['lines', 'history']));
     }
 
     #[OA\Get(

@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Modules\Identity\Http\Controllers;
 
+use App\Modules\Identity\Actions\ClaimGuestAccountAction;
 use App\Modules\Identity\Actions\CreateGuestCustomerAction;
 use App\Modules\Identity\Actions\LoginAction;
 use App\Modules\Identity\Actions\RegisterCustomerAction;
+use App\Modules\Identity\Exceptions\AccountClaimNotAllowed;
+use App\Modules\Identity\Http\Requests\ClaimAccountRequest;
 use App\Modules\Identity\Http\Requests\GuestRequest;
 use App\Modules\Identity\Http\Requests\LoginRequest;
 use App\Modules\Identity\Http\Requests\RegisterRequest;
 use App\Modules\Identity\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class AuthController
@@ -70,6 +74,30 @@ class AuthController
             'user' => new UserResource($user),
             'token' => $user->createToken('guest')->plainTextToken,
         ], 201);
+    }
+
+    #[OA\Post(
+        path: '/api/v1/auth/claim-account',
+        summary: 'Transformer une session invité en compte (e-mail de la commande + mot de passe choisi)',
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['password'],
+            properties: [new OA\Property(property: 'password', type: 'string', example: 'secret1234')],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'Compte créé', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/User')])),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 422, description: 'Mot de passe invalide, déjà un compte, ou e-mail déjà utilisé'),
+        ],
+    )]
+    public function claimAccount(ClaimAccountRequest $request, ClaimGuestAccountAction $action): UserResource
+    {
+        try {
+            return new UserResource($action->execute($request->user(), $request->string('password')->toString()));
+        } catch (AccountClaimNotAllowed $e) {
+            throw ValidationException::withMessages(['account' => [$e->getMessage()]]);
+        }
     }
 
     #[OA\Post(

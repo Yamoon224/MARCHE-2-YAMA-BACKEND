@@ -26,7 +26,7 @@ final class FakeGateway implements PaymentGateway
         return 'fake';
     }
 
-    public function charge(string $reference, int $amountMinor, string $currency, PaymentMethod $method): GatewayCharge
+    public function charge(string $reference, int $amountMinor, string $currency, PaymentMethod $method, array $context = []): GatewayCharge
     {
         return new GatewayCharge('fake_'.Str::lower((string) Str::ulid()));
     }
