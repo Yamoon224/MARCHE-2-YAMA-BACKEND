@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Banner extends Model
 {
-    protected $fillable = ['title', 'text', 'cta_label', 'cta_url', 'image_url', 'position', 'is_active'];
+    protected $fillable = ['title', 'eyebrow', 'text', 'cta_label', 'cta_url', 'image_url', 'position', 'is_active'];
 
     protected function casts(): array
     {

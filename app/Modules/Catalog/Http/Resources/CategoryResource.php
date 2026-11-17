@@ -17,6 +17,9 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'image_url', type: 'string', nullable: true),
     new OA\Property(property: 'position', type: 'integer'),
     new OA\Property(property: 'is_active', type: 'boolean'),
+    new OA\Property(property: 'show_on_home', type: 'boolean'),
+    new OA\Property(property: 'home_title', type: 'string', nullable: true),
+    new OA\Property(property: 'home_subtitle', type: 'string', nullable: true),
 ])]
 /** @property Category $resource */
 class CategoryResource extends JsonResource
@@ -32,6 +35,9 @@ class CategoryResource extends JsonResource
             'image_url' => $this->resource->image_url,
             'position' => $this->resource->position,
             'is_active' => $this->resource->is_active,
+            'show_on_home' => $this->resource->show_on_home,
+            'home_title' => $this->resource->home_title,
+            'home_subtitle' => $this->resource->home_subtitle,
         ];
     }
 }

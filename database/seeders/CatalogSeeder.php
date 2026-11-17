@@ -34,6 +34,16 @@ class CatalogSeeder extends Seeder
             $categories[$slug] = Category::firstOrCreate(['slug' => $slug], ['name' => $name, 'icon' => $icon, 'position' => $position]);
         }
 
+        // Rayons mis en avant sur l'accueil (uniquement à la création : le backoffice garde la main ensuite).
+        foreach ([
+            'fruits-legumes' => ['Du frais, tous les jours', 'Fruits et légumes de saison.'],
+            'epicerie' => ['Notre épicerie', 'Les indispensables du placard.'],
+        ] as $slug => [$homeTitle, $homeSubtitle]) {
+            if ($categories[$slug]->wasRecentlyCreated) {
+                $categories[$slug]->update(['show_on_home' => true, 'home_title' => $homeTitle, 'home_subtitle' => $homeSubtitle]);
+            }
+        }
+
         // [rayon, sku, nom, slug, unité, prix, ancien prix (promo), périssable, mis en avant]
         $items = [
             ['fruits-legumes', 'FL-001', 'Tomates fraîches', 'tomates-fraiches', SaleUnit::Kilogram, 900, 1200, true, false],
@@ -65,9 +75,9 @@ class CatalogSeeder extends Seeder
         foreach ([
             ['Les meilleurs produits, aux meilleurs prix', 'Vos courses livrées à Paris et en Île-de-France, ou à retirer en magasin.', 'Acheter maintenant', '/rayons'],
             ['Du frais, tous les jours', 'Fruits, légumes, viandes et poissons suivis par lot et date limite.', 'Voir les rayons', '/rayons/fruits-legumes'],
-            ['Cuisinez comme chez nous', 'Tous les ingrédients d\'un plat, en un clic.', 'Découvrir les recettes', '/#recettes'],
+            ['Cuisinez comme chez nous', 'Tous les ingrédients d\'un plat, en un clic.', 'Découvrir les recettes', '/#combos'],
         ] as $position => [$title, $text, $label, $url]) {
-            Banner::firstOrCreate(['title' => $title], ['text' => $text, 'cta_label' => $label, 'cta_url' => $url, 'position' => $position]);
+            Banner::firstOrCreate(['title' => $title], ['eyebrow' => 'Authentique & savoureux', 'text' => $text, 'cta_label' => $label, 'cta_url' => $url, 'position' => $position]);
         }
 
         // [slug, nom, icône, [sku => quantité en unité de base (pièces, g ou ml)]]

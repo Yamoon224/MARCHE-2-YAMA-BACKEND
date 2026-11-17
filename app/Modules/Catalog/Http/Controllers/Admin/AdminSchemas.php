@@ -13,9 +13,13 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'image_url', type: 'string', nullable: true),
     new OA\Property(property: 'position', type: 'integer'),
     new OA\Property(property: 'is_active', type: 'boolean'),
+    new OA\Property(property: 'show_on_home', type: 'boolean'),
+    new OA\Property(property: 'home_title', type: 'string', nullable: true),
+    new OA\Property(property: 'home_subtitle', type: 'string', nullable: true),
 ])]
 #[OA\Schema(schema: 'BannerInput', required: ['title', 'cta_label', 'cta_url'], properties: [
     new OA\Property(property: 'title', type: 'string'),
+    new OA\Property(property: 'eyebrow', type: 'string', nullable: true),
     new OA\Property(property: 'text', type: 'string', nullable: true),
     new OA\Property(property: 'cta_label', type: 'string'),
     new OA\Property(property: 'cta_url', type: 'string'),

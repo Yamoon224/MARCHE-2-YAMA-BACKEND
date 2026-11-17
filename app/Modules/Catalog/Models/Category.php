@@ -14,7 +14,7 @@ class Category extends Model
     /** @use HasFactory<CategoryFactory> */
     use HasFactory;
 
-    protected $fillable = ['parent_id', 'name', 'slug', 'icon', 'image_url', 'position', 'is_active'];
+    protected $fillable = ['parent_id', 'name', 'slug', 'icon', 'image_url', 'position', 'is_active', 'show_on_home', 'home_title', 'home_subtitle'];
 
     protected static function newFactory(): CategoryFactory
     {
@@ -23,7 +23,7 @@ class Category extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
+        return ['is_active' => 'boolean', 'show_on_home' => 'boolean'];
     }
 
     /** @return HasMany<Product, $this> */

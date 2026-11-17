@@ -54,6 +54,7 @@ class BannerAdminController
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'eyebrow' => ['nullable', 'string', 'max:80'],
             'text' => ['nullable', 'string', 'max:500'],
             'cta_label' => ['required', 'string', 'max:80'],
             // Lien interne (/rayons) ou absolu (https://…) : jamais javascript: ni data:.

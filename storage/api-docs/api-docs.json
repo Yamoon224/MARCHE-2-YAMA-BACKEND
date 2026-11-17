@@ -4471,6 +4471,17 @@
                     },
                     "is_active": {
                         "type": "boolean"
+                    },
+                    "show_on_home": {
+                        "type": "boolean"
+                    },
+                    "home_title": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "home_subtitle": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -4484,6 +4495,10 @@
                 "properties": {
                     "title": {
                         "type": "string"
+                    },
+                    "eyebrow": {
+                        "type": "string",
+                        "nullable": true
                     },
                     "text": {
                         "type": "string",
@@ -4617,6 +4632,10 @@
                     "title": {
                         "type": "string"
                     },
+                    "eyebrow": {
+                        "type": "string",
+                        "nullable": true
+                    },
                     "text": {
                         "type": "string",
                         "nullable": true
@@ -4669,6 +4688,17 @@
                     },
                     "is_active": {
                         "type": "boolean"
+                    },
+                    "show_on_home": {
+                        "type": "boolean"
+                    },
+                    "home_title": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "home_subtitle": {
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "type": "object"

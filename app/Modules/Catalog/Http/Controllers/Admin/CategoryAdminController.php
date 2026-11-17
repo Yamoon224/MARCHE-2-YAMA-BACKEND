@@ -66,6 +66,9 @@ class CategoryAdminController
             'image_url' => ['nullable', 'url', 'max:500'],
             'position' => ['integer', 'min:0'],
             'is_active' => ['boolean'],
+            'show_on_home' => ['boolean'],
+            'home_title' => ['nullable', 'string', 'max:120'],
+            'home_subtitle' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -12,6 +12,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(schema: 'Banner', required: ['id', 'title', 'cta_label', 'cta_url'], properties: [
     new OA\Property(property: 'id', type: 'integer'),
     new OA\Property(property: 'title', type: 'string'),
+    new OA\Property(property: 'eyebrow', type: 'string', nullable: true),
     new OA\Property(property: 'text', type: 'string', nullable: true),
     new OA\Property(property: 'cta_label', type: 'string'),
     new OA\Property(property: 'cta_url', type: 'string'),
@@ -28,6 +29,7 @@ class BannerResource extends JsonResource
         return [
             'id' => $this->resource->id,
             'title' => $this->resource->title,
+            'eyebrow' => $this->resource->eyebrow,
             'text' => $this->resource->text,
             'cta_label' => $this->resource->cta_label,
             'cta_url' => $this->resource->cta_url,
