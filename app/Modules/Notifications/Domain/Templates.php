@@ -43,7 +43,7 @@ final class Templates
             self::REFUND_SENT => ['title' => 'Remboursement effectué', 'body' => 'Nous vous avons remboursé '.self::money($params['amount_minor'] ?? 0)." pour la commande n°{$order}."],
             self::ORDER_READY_PICKUP => ['title' => "Commande n°{$order} prête au retrait", 'body' => "Votre commande n°{$order} vous attend en magasin. Munissez-vous de votre numéro de commande."],
             self::LOT_RECALLED => [
-                'title' => "Rappel de produit — commande n°{$order}",
+                'title' => "Rappel de produit - commande n°{$order}",
                 'body' => "Un produit de votre commande n°{$order} (lot ".($params['lot_code'] ?? '?').') fait l\'objet d\'un rappel : '.mb_substr($params['reason'] ?? '', 0, 200).'. Ne le consommez pas et contactez-nous : nous vous remboursons.',
             ],
             default => throw new InvalidArgumentException("Type de notification inconnu : {$type}"),

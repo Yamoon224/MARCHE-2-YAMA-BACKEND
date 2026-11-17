@@ -105,7 +105,7 @@ it('validates coordinates', function (array $body) {
     'missing' => [['latitude' => 5.3]],
 ]);
 
-it('shows the customer the live position, the courier and the code — and nobody else', function () {
+it('shows the customer the live position, the courier and the code - and nobody else', function () {
     $ctx = readyDeliveryOrder();
     $courier = courierUser('Koffi');
     $url = "/api/v1/orders/{$ctx['order']->id}/tracking";
