@@ -67,6 +67,9 @@ return [
 
     'timezone' => 'UTC',
 
+    // URL publique du backoffice : cible du lien de réinitialisation du mot de passe.
+    'backoffice_url' => env('BACKOFFICE_URL', 'http://localhost:3001'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

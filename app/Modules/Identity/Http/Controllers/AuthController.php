@@ -8,14 +8,20 @@ use App\Modules\Identity\Actions\ClaimGuestAccountAction;
 use App\Modules\Identity\Actions\CreateGuestCustomerAction;
 use App\Modules\Identity\Actions\LoginAction;
 use App\Modules\Identity\Actions\RegisterCustomerAction;
+use App\Modules\Identity\Enums\Role;
 use App\Modules\Identity\Exceptions\AccountClaimNotAllowed;
 use App\Modules\Identity\Http\Requests\ClaimAccountRequest;
+use App\Modules\Identity\Http\Requests\ForgotPasswordRequest;
 use App\Modules\Identity\Http\Requests\GuestRequest;
 use App\Modules\Identity\Http\Requests\LoginRequest;
 use App\Modules\Identity\Http\Requests\RegisterRequest;
+use App\Modules\Identity\Http\Requests\ResetPasswordRequest;
 use App\Modules\Identity\Http\Resources\UserResource;
+use App\Modules\Identity\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
@@ -121,6 +127,71 @@ class AuthController
         $result = $action->execute($request->string('login')->toString(), $request->string('password')->toString());
 
         return response()->json(['user' => new UserResource($result['user']), 'token' => $result['token']]);
+    }
+
+    #[OA\Post(
+        path: '/api/v1/auth/forgot-password',
+        summary: "Envoie un lien de réinitialisation du mot de passe (compte du personnel). Réponse identique que le compte existe ou non.",
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['email'],
+            properties: [new OA\Property(property: 'email', type: 'string', example: 'agent@example.com')],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'Demande enregistrée'),
+            new OA\Response(response: 422, description: 'Validation'),
+        ],
+    )]
+    public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
+    {
+        $email = $request->string('email')->toString();
+        $user = User::where('email', $email)->first();
+
+        // Rien n'est envoyé pour un compte inconnu, client ou invité (le backoffice leur est fermé),
+        // et rien dans la réponse ne permet de le savoir.
+        if ($user !== null && ! $user->is_guest && $user->role !== Role::Customer) {
+            Password::broker()->sendResetLink(['email' => $email]);
+        }
+
+        return response()->json([
+            'message' => "Si un compte correspond à cette adresse, un e-mail de réinitialisation vient d'être envoyé.",
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/api/v1/auth/reset-password',
+        summary: "Choisit un nouveau mot de passe avec le jeton reçu par e-mail (usage unique, durée limitée)",
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['token', 'email', 'password', 'password_confirmation'],
+            properties: [
+                new OA\Property(property: 'token', type: 'string'),
+                new OA\Property(property: 'email', type: 'string'),
+                new OA\Property(property: 'password', type: 'string'),
+                new OA\Property(property: 'password_confirmation', type: 'string'),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'Mot de passe changé'),
+            new OA\Response(response: 422, description: 'Lien invalide ou expiré, ou mot de passe refusé'),
+        ],
+    )]
+    public function resetPassword(ResetPasswordRequest $request): JsonResponse
+    {
+        $status = Password::broker()->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password): void {
+                $user->forceFill(['password' => $password, 'remember_token' => Str::random(60)])->save();
+                // Toute session ouverte avec l'ancien mot de passe est fermée.
+                $user->tokens()->delete();
+            },
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json(['message' => 'Ce lien de réinitialisation est invalide ou a expiré. Demandez-en un nouveau.'], 422);
+        }
+
+        return response()->json(['message' => 'Votre mot de passe a été changé. Vous pouvez vous connecter.']);
     }
 
     #[OA\Get(
