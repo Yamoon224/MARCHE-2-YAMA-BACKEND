@@ -39,6 +39,14 @@ class DemoSeeder extends Seeder
             'name' => 'Koffi Livreur', 'password' => 'password', 'role' => Role::Courier,
         ]);
 
+        User::firstOrCreate(['email' => 'catalogue@marche-yama.test'], [
+            'name' => 'Responsable catalogue', 'password' => 'password', 'role' => Role::CatalogManager,
+        ]);
+
+        User::firstOrCreate(['email' => 'comptable@marche-yama.test'], [
+            'name' => 'Comptable', 'password' => 'password', 'role' => Role::Accountant,
+        ]);
+
         $warehouse = Warehouse::firstOrCreate(['code' => ReferenceSeeder::WAREHOUSE_CODE], ['name' => 'Entrepôt Paris']);
 
         foreach (Product::all() as $product) {
