@@ -31,7 +31,11 @@ Route::prefix('catalog')->middleware(['auth:sanctum', 'permission:catalog.manage
     Route::post('products/{product}/images/{image}/cover', [ProductAdminController::class, 'setCover']);
     Route::delete('products/{product}/images/{image}', [ProductAdminController::class, 'removeImage']);
     Route::apiResource('categories', CategoryAdminController::class)->except('show');
-    Route::apiResource('banners', BannerAdminController::class)->except('show');
     Route::apiResource('recipes', RecipeAdminController::class)->except('show');
+});
+
+// Bannières : aussi confiées au marketing (banners.manage). L'envoi d'image sert aux produits comme aux bannières.
+Route::prefix('catalog')->middleware(['auth:sanctum', 'permission:catalog.manage,banners.manage'])->group(function () {
+    Route::apiResource('banners', BannerAdminController::class)->except('show');
     Route::post('media', [MediaController::class, 'store']);
 });

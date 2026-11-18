@@ -10,13 +10,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class RequirePermission
 {
-    public function handle(Request $request, Closure $next, string $permission): Response
+    public function handle(Request $request, Closure $next, string ...$permissions): Response
     {
         $user = $request->user();
 
-        if ($user === null || ! $user->hasPermission($permission)) {
-            abort(403, 'Action non autorisée.');
-        }
+        // Plusieurs permissions possibles (`permission:a,b`) : une seule suffit.
+        $allowed = $user !== null && array_filter($permissions, fn (string $permission) => $user->hasPermission($permission)) !== [];
+
+        abort_unless($allowed, 403, 'Action non autorisée.');
 
         return $next($request);
     }

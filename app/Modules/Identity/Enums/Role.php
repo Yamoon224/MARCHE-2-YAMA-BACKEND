@@ -24,7 +24,7 @@ enum Role: string
     {
         return match ($this) {
             self::Admin => ['*'],
-            self::CatalogManager => ['catalog.manage'],
+            self::CatalogManager => ['catalog.manage', 'banners.manage'],
             self::StockKeeper => ['inventory.manage', 'inventory.view'],
             self::Buyer => ['inventory.view'],
             self::Picker => ['inventory.view', 'orders.prepare'],
@@ -32,7 +32,7 @@ enum Role: string
             self::Courier => ['orders.deliver', 'delivery.courier'],
             self::Support => ['orders.view', 'invoicing.view', 'payments.refund', 'claims.decide', 'customers.view'],
             self::Accountant => ['orders.view', 'invoicing.view', 'accounting.view', 'reports.view'],
-            self::Marketing => ['promotions.manage', 'customers.view'],
+            self::Marketing => ['promotions.manage', 'customers.view', 'banners.manage'],
             default => [],
         };
     }

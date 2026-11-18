@@ -15,6 +15,8 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('claim-account', [AuthController::class, 'claimAccount'])->middleware('throttle:10,1');
         Route::get('me', [AuthController::class, 'me']);
+        Route::put('me', [AuthController::class, 'updateProfile']);
+        Route::post('change-password', [AuthController::class, 'changePassword'])->middleware('throttle:10,1');
         Route::post('logout', [AuthController::class, 'logout']);
     });
 });

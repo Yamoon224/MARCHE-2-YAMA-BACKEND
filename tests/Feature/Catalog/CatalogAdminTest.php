@@ -110,3 +110,19 @@ it('stores an uploaded image and refuses other file types', function () {
     $this->postJson('/api/v1/catalog/media', ['image' => UploadedFile::fake()->create('x.svg', 5, 'image/svg+xml')])->assertUnprocessable();
     $this->postJson('/api/v1/catalog/media', ['image' => UploadedFile::fake()->create('x.php', 5, 'text/x-php')])->assertUnprocessable();
 });
+
+it('lets marketing manage banners and upload their image, but nothing else in the catalog', function () {
+    Storage::fake('public');
+    $marketing = User::factory()->role(Role::Marketing)->create();
+    $this->actingAs($marketing, 'sanctum');
+
+    $this->getJson('/api/v1/catalog/banners')->assertOk();
+    $this->postJson('/api/v1/catalog/media', ['image' => UploadedFile::fake()->image('b.jpg', 800, 400)])->assertCreated();
+    $this->postJson('/api/v1/catalog/banners', ['title' => 'Promo', 'cta_label' => 'Voir', 'cta_url' => '/aisles'])->assertCreated();
+
+    $this->getJson('/api/v1/catalog/products')->assertForbidden();
+    $this->getJson('/api/v1/catalog/categories')->assertForbidden();
+    $this->getJson('/api/v1/catalog/recipes')->assertForbidden();
+
+    $this->actingAs(User::factory()->role(Role::Support)->create(), 'sanctum')->getJson('/api/v1/catalog/banners')->assertForbidden();
+});

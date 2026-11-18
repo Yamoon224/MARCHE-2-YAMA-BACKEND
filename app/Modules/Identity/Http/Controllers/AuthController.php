@@ -10,12 +10,14 @@ use App\Modules\Identity\Actions\LoginAction;
 use App\Modules\Identity\Actions\RegisterCustomerAction;
 use App\Modules\Identity\Enums\Role;
 use App\Modules\Identity\Exceptions\AccountClaimNotAllowed;
+use App\Modules\Identity\Http\Requests\ChangePasswordRequest;
 use App\Modules\Identity\Http\Requests\ClaimAccountRequest;
 use App\Modules\Identity\Http\Requests\ForgotPasswordRequest;
 use App\Modules\Identity\Http\Requests\GuestRequest;
 use App\Modules\Identity\Http\Requests\LoginRequest;
 use App\Modules\Identity\Http\Requests\RegisterRequest;
 use App\Modules\Identity\Http\Requests\ResetPasswordRequest;
+use App\Modules\Identity\Http\Requests\UpdateProfileRequest;
 use App\Modules\Identity\Http\Resources\UserResource;
 use App\Modules\Identity\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -131,7 +133,7 @@ class AuthController
 
     #[OA\Post(
         path: '/api/v1/auth/forgot-password',
-        summary: "Envoie un lien de réinitialisation du mot de passe (compte du personnel). Réponse identique que le compte existe ou non.",
+        summary: 'Envoie un lien de réinitialisation du mot de passe (compte du personnel). Réponse identique que le compte existe ou non.',
         tags: ['Auth'],
         requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
             required: ['email'],
@@ -160,7 +162,7 @@ class AuthController
 
     #[OA\Post(
         path: '/api/v1/auth/reset-password',
-        summary: "Choisit un nouveau mot de passe avec le jeton reçu par e-mail (usage unique, durée limitée)",
+        summary: 'Choisit un nouveau mot de passe avec le jeton reçu par e-mail (usage unique, durée limitée)',
         tags: ['Auth'],
         requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
             required: ['token', 'email', 'password', 'password_confirmation'],
@@ -207,6 +209,65 @@ class AuthController
     public function me(Request $request): UserResource
     {
         return new UserResource($request->user());
+    }
+
+    #[OA\Put(
+        path: '/api/v1/auth/me',
+        summary: 'Modifier mon profil (nom, téléphone)',
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['name'],
+            properties: [
+                new OA\Property(property: 'name', type: 'string', example: 'Awa Koné'),
+                new OA\Property(property: 'phone', type: 'string', nullable: true, example: '+33612345678'),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'Profil mis à jour', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/User')])),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 422, description: 'Validation'),
+        ],
+    )]
+    public function updateProfile(UpdateProfileRequest $request): UserResource
+    {
+        $user = $request->user();
+        $user->update([
+            'name' => $request->string('name')->trim()->toString(),
+            'phone' => $request->filled('phone') ? $request->string('phone')->trim()->toString() : null,
+        ]);
+
+        return new UserResource($user->refresh());
+    }
+
+    #[OA\Post(
+        path: '/api/v1/auth/change-password',
+        summary: 'Changer mon mot de passe (les autres sessions sont fermées)',
+        security: [['sanctum' => []]],
+        tags: ['Auth'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
+            required: ['current_password', 'password', 'password_confirmation'],
+            properties: [
+                new OA\Property(property: 'current_password', type: 'string'),
+                new OA\Property(property: 'password', type: 'string'),
+                new OA\Property(property: 'password_confirmation', type: 'string'),
+            ],
+        )),
+        responses: [
+            new OA\Response(response: 200, description: 'Mot de passe changé'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 422, description: 'Mot de passe actuel incorrect ou nouveau mot de passe refusé'),
+        ],
+    )]
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        $user->forceFill(['password' => $request->string('password')->toString(), 'remember_token' => Str::random(60)])->save();
+        // Les autres appareils doivent se reconnecter ; la session courante continue.
+        $current = $user->currentAccessToken();
+        $user->tokens()->when($current !== null, fn ($query) => $query->where('id', '!=', $current->id))->delete();
+
+        return response()->json(['message' => 'Votre mot de passe a été changé.']);
     }
 
     #[OA\Post(

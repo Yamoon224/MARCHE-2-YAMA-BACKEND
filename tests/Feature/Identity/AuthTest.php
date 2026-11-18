@@ -95,3 +95,46 @@ describe('forgotten password', function () {
             ->assertUnprocessable()->assertJsonValidationErrors('password');
     });
 });
+
+describe('profile', function () {
+    it('updates my own name and phone', function () {
+        $user = User::factory()->role(Role::Picker)->create(['name' => 'Ancien Nom']);
+        $this->actingAs($user, 'sanctum');
+
+        $this->putJson('/api/v1/auth/me', ['name' => 'Nouveau Nom', 'phone' => '+33612345678'])
+            ->assertOk()->assertJsonPath('data.name', 'Nouveau Nom')->assertJsonPath('data.phone', '+33612345678');
+        $this->putJson('/api/v1/auth/me', ['name' => ''])->assertUnprocessable()->assertJsonValidationErrors('name');
+
+        expect($user->fresh()->role)->toBe(Role::Picker);
+    });
+
+    it('refuses a phone number already used by someone else', function () {
+        User::factory()->create(['phone' => '+33600000001']);
+        $this->actingAs(User::factory()->role(Role::Picker)->create(), 'sanctum');
+
+        $this->putJson('/api/v1/auth/me', ['name' => 'X', 'phone' => '+33600000001'])->assertUnprocessable()->assertJsonValidationErrors('phone');
+    });
+
+    it('requires authentication to edit the profile', function () {
+        $this->putJson('/api/v1/auth/me', ['name' => 'X'])->assertUnauthorized();
+        $this->postJson('/api/v1/auth/change-password', [])->assertUnauthorized();
+    });
+
+    it('changes my password after checking the current one, keeping only this session', function () {
+        $user = User::factory()->role(Role::Support)->create(['email' => 'p@yama.test', 'password' => 'oldpass123']);
+        $user->createToken('other');
+        $plain = $user->createToken('current')->plainTextToken;
+
+        $headers = ['Authorization' => 'Bearer '.$plain];
+        $payload = ['current_password' => 'oldpass123', 'password' => 'newpass456', 'password_confirmation' => 'newpass456'];
+
+        $this->postJson('/api/v1/auth/change-password', [...$payload, 'current_password' => 'wrong'], $headers)
+            ->assertUnprocessable()->assertJsonValidationErrors('current_password');
+        $this->postJson('/api/v1/auth/change-password', [...$payload, 'password' => 'short', 'password_confirmation' => 'short'], $headers)
+            ->assertUnprocessable()->assertJsonValidationErrors('password');
+        $this->postJson('/api/v1/auth/change-password', $payload, $headers)->assertOk();
+
+        expect(Hash::check('newpass456', $user->fresh()->password))->toBeTrue()
+            ->and($user->tokens()->count())->toBe(1);
+    });
+});
