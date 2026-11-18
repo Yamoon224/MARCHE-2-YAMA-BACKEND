@@ -7,14 +7,16 @@ namespace App\Modules\Identity\Models;
 use App\Modules\Identity\Contracts\PermissionHolder;
 use App\Modules\Identity\Database\Factories\UserFactory;
 use App\Modules\Identity\Enums\Role;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Modules\Identity\Notifications\ResetPasswordNotification;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
  * @property Role $role
+ * @property Carbon|null $deactivated_at
  */
 class User extends Authenticatable implements PermissionHolder
 {
@@ -37,7 +39,18 @@ class User extends Authenticatable implements PermissionHolder
             'password' => 'hashed',
             'role' => Role::class,
             'is_guest' => 'boolean',
+            'deactivated_at' => 'datetime',
         ];
+    }
+
+    public function isActive(): bool
+    {
+        return $this->deactivated_at === null;
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->role->isStaff();
     }
 
     /** Le lien de réinitialisation ouvre le backoffice : voir ResetPasswordNotification. */

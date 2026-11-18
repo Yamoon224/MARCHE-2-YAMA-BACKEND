@@ -28,10 +28,11 @@ enum Role: string
             self::StockKeeper => ['inventory.manage', 'inventory.view'],
             self::Buyer => ['inventory.view'],
             self::Picker => ['inventory.view', 'orders.prepare'],
-            self::OrderOperator => ['orders.view', 'orders.manage', 'orders.prepare', 'delivery.manage', 'delivery.assign', 'cash.receive'],
+            self::OrderOperator => ['orders.view', 'orders.manage', 'orders.prepare', 'delivery.manage', 'delivery.assign', 'cash.receive', 'customers.view', 'reports.view'],
             self::Courier => ['orders.deliver', 'delivery.courier'],
-            self::Support => ['orders.view', 'invoicing.view', 'payments.refund', 'claims.decide'],
-            self::Accountant => ['orders.view', 'invoicing.view', 'accounting.view'],
+            self::Support => ['orders.view', 'invoicing.view', 'payments.refund', 'claims.decide', 'customers.view'],
+            self::Accountant => ['orders.view', 'invoicing.view', 'accounting.view', 'reports.view'],
+            self::Marketing => ['promotions.manage', 'customers.view'],
             default => [],
         };
     }
@@ -41,5 +42,34 @@ enum Role: string
         $granted = $this->permissions();
 
         return in_array('*', $granted, true) || in_array($permission, $granted, true);
+    }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Customer => 'Client',
+            self::Admin => 'Administrateur',
+            self::CatalogManager => 'Responsable catalogue',
+            self::StockKeeper => 'Magasinier',
+            self::Picker => 'Préparateur',
+            self::OrderOperator => 'Opérateur de commandes',
+            self::Cashier => 'Caissier',
+            self::Buyer => 'Acheteur',
+            self::Accountant => 'Comptable',
+            self::Courier => 'Livreur',
+            self::Support => 'Support client',
+            self::Marketing => 'Marketing',
+        };
+    }
+
+    public function isStaff(): bool
+    {
+        return $this !== self::Customer;
+    }
+
+    /** @return list<self> */
+    public static function staffRoles(): array
+    {
+        return array_values(array_filter(self::cases(), fn (self $role) => $role->isStaff()));
     }
 }

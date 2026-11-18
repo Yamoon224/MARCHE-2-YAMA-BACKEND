@@ -47,7 +47,7 @@ class CategoryAdminController
         responses: [new OA\Response(response: 204, description: 'Supprimé'), new OA\Response(response: 422, description: 'Le rayon contient encore des produits')])]
     public function destroy(Category $category): JsonResponse
     {
-        if ($category->products()->exists()) {
+        if ($category->products()->withTrashed()->exists()) {
             return response()->json(['message' => 'Ce rayon contient encore des produits : déplacez-les ou désactivez le rayon.'], 422);
         }
 

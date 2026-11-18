@@ -1,126 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{{ $documentationTitle }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documentation API · Marché de Yama</title>
     <link rel="stylesheet" type="text/css" href="{{ l5_swagger_asset($documentation, 'swagger-ui.css') }}">
-    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-32x32.png') }}" sizes="32x32"/>
-    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-16x16.png') }}" sizes="16x16"/>
+    <link rel="icon" type="image/png" href="/brand/icon.png">
+    <link rel="stylesheet" href="/css/brand.css">
     <style>
-    html
-    {
-        box-sizing: border-box;
-        overflow: -moz-scrollbars-vertical;
-        overflow-y: scroll;
-    }
-    *,
-    *:before,
-    *:after
-    {
-        box-sizing: inherit;
-    }
+        body { background: var(--background); }
 
-    body {
-      margin:0;
-      background: #fafafa;
-    }
+        .docs-intro { max-width: 1200px; margin: 0 auto; padding: 28px 16px 0; }
+        .docs-intro h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); padding-bottom: 10px; border-bottom: 4px solid var(--brand-red); display: inline-block; }
+        .docs-intro p { color: var(--muted); max-width: 70ch; margin: 14px 0 0; }
+
+        #swagger-ui { max-width: 1200px; margin: 0 auto; padding: 0 16px 48px; }
+        .swagger-ui, .swagger-ui .info .title, .swagger-ui .opblock-tag, .swagger-ui .tab li, .swagger-ui table thead tr th,
+        .swagger-ui .parameter__name, .swagger-ui label, .swagger-ui .response-col_status { font-family: var(--font-sans); color: var(--foreground); }
+        .swagger-ui .info .title, .swagger-ui .opblock-tag { font-family: var(--font-display); letter-spacing: -0.02em; }
+        .swagger-ui .info { margin: 24px 0; }
+        .swagger-ui .info .title small.version-stamp { background: var(--brand-green); }
+        .swagger-ui .info a, .swagger-ui a.nostyle { color: var(--brand-green); }
+
+        /* Barre de serveur / autorisation en carte à liseré de la couleur principale */
+        .swagger-ui .scheme-container { background: var(--card); border-bottom: 4px solid var(--brand-green); border-radius: 18px; box-shadow: var(--shadow-soft); margin: 0 0 24px; padding: 18px 20px; }
+
+        .swagger-ui .opblock-tag { border-bottom: 1px solid var(--line); }
+        .swagger-ui .opblock { border-radius: 14px; box-shadow: none; }
+        .swagger-ui .opblock .opblock-summary { border-radius: 12px; }
+        .swagger-ui .opblock.opblock-get { background: #087b350d; border-color: var(--brand-green); }
+        .swagger-ui .opblock.opblock-get .opblock-summary-method { background: var(--brand-green); }
+        .swagger-ui .opblock.opblock-get .opblock-summary { border-color: var(--brand-green); }
+        .swagger-ui .opblock.opblock-post { background: #f2b70514; border-color: var(--brand-gold); }
+        .swagger-ui .opblock.opblock-post .opblock-summary-method { background: #a67c00; }
+        .swagger-ui .opblock.opblock-post .opblock-summary { border-color: var(--brand-gold); }
+        .swagger-ui .opblock.opblock-put, .swagger-ui .opblock.opblock-patch { background: #20251f0a; border-color: var(--foreground); }
+        .swagger-ui .opblock.opblock-put .opblock-summary-method, .swagger-ui .opblock.opblock-patch .opblock-summary-method { background: var(--foreground); }
+        .swagger-ui .opblock.opblock-put .opblock-summary, .swagger-ui .opblock.opblock-patch .opblock-summary { border-color: var(--foreground); }
+        .swagger-ui .opblock.opblock-delete { background: #c9001b0d; border-color: var(--brand-red); }
+        .swagger-ui .opblock.opblock-delete .opblock-summary-method { background: var(--brand-red); }
+        .swagger-ui .opblock.opblock-delete .opblock-summary { border-color: var(--brand-red); }
+
+        .swagger-ui .btn { border-radius: 999px; font-weight: 700; box-shadow: none; }
+        .swagger-ui .btn.execute { background: var(--brand-green); border-color: var(--brand-green); color: #fff; }
+        .swagger-ui .btn.execute:hover { background: var(--brand-green-dark); }
+        .swagger-ui .btn.authorize { color: var(--brand-green); border-color: var(--brand-green); }
+        .swagger-ui .btn.authorize svg { fill: var(--brand-green); }
+        .swagger-ui .btn.cancel { color: var(--brand-red); border-color: var(--brand-red); }
+        .swagger-ui .btn-clear { color: var(--brand-red); }
+        .swagger-ui input[type=text], .swagger-ui input[type=password], .swagger-ui input[type=search], .swagger-ui textarea, .swagger-ui select { border-radius: 10px; border-color: var(--line); }
+        .swagger-ui .filter .operation-filter-input { border: 2px solid var(--line); border-radius: 999px; padding: 8px 16px; }
+        .swagger-ui section.models { border-color: var(--line); border-radius: 18px; background: var(--card); }
+        .swagger-ui section.models h4 { font-family: var(--font-display); }
+        .swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5 { font-family: var(--font-sans); }
+        .swagger-ui .loading-container .loading:after { font-family: var(--font-sans); }
+
+        @media (max-width: 640px) {
+            .swagger-ui .opblock .opblock-summary-description { display: none; }
+            .swagger-ui .wrapper { padding: 0; }
+        }
     </style>
-    @if(config('l5-swagger.defaults.ui.display.dark_mode'))
-        <style>
-            body#dark-mode,
-            #dark-mode .scheme-container {
-                background: #1b1b1b;
-            }
-            #dark-mode .scheme-container,
-            #dark-mode .opblock .opblock-section-header{
-                box-shadow: 0 1px 2px 0 rgba(255, 255, 255, 0.15);
-            }
-            #dark-mode .operation-filter-input,
-            #dark-mode .dialog-ux .modal-ux,
-            #dark-mode input[type=email],
-            #dark-mode input[type=file],
-            #dark-mode input[type=password],
-            #dark-mode input[type=search],
-            #dark-mode input[type=text],
-            #dark-mode textarea{
-                background: #343434;
-                color: #e7e7e7;
-            }
-            #dark-mode .title,
-            #dark-mode li,
-            #dark-mode p,
-            #dark-mode table,
-            #dark-mode label,
-            #dark-mode .opblock-tag,
-            #dark-mode .opblock .opblock-summary-operation-id,
-            #dark-mode .opblock .opblock-summary-path,
-            #dark-mode .opblock .opblock-summary-path__deprecated,
-            #dark-mode h1,
-            #dark-mode h2,
-            #dark-mode h3,
-            #dark-mode h4,
-            #dark-mode h5,
-            #dark-mode .btn,
-            #dark-mode .tab li,
-            #dark-mode .parameter__name,
-            #dark-mode .parameter__type,
-            #dark-mode .prop-format,
-            #dark-mode .loading-container .loading:after{
-                color: #e7e7e7;
-            }
-            #dark-mode .opblock-description-wrapper p,
-            #dark-mode .opblock-external-docs-wrapper p,
-            #dark-mode .opblock-title_normal p,
-            #dark-mode .response-col_status,
-            #dark-mode table thead tr td,
-            #dark-mode table thead tr th,
-            #dark-mode .response-col_links,
-            #dark-mode .swagger-ui{
-                color: wheat;
-            }
-            #dark-mode .parameter__extension,
-            #dark-mode .parameter__in,
-            #dark-mode .model-title{
-                color: #949494;
-            }
-            #dark-mode table thead tr td,
-            #dark-mode table thead tr th{
-                border-color: rgba(120,120,120,.2);
-            }
-            #dark-mode .opblock .opblock-section-header{
-                background: transparent;
-            }
-            #dark-mode .opblock.opblock-post{
-                background: rgba(73,204,144,.25);
-            }
-            #dark-mode .opblock.opblock-get{
-                background: rgba(97,175,254,.25);
-            }
-            #dark-mode .opblock.opblock-put{
-                background: rgba(252,161,48,.25);
-            }
-            #dark-mode .opblock.opblock-delete{
-                background: rgba(249,62,62,.25);
-            }
-            #dark-mode .loading-container .loading:before{
-                border-color: rgba(255,255,255,10%);
-                border-top-color: rgba(255,255,255,.6);
-            }
-            #dark-mode svg:not(:root){
-                fill: #e7e7e7;
-            }
-            #dark-mode .opblock-summary-description {
-                color: #fafafa;
-            }
-        </style>
-    @endif
 </head>
 
-<body @if(config('l5-swagger.defaults.ui.display.dark_mode')) id="dark-mode" @endif>
+<body>
+<header class="site-header">
+    <div class="site-header__inner">
+        <a class="brand" href="/">
+            <img src="/brand/logo.png" alt="" width="44" height="44">
+            <span><strong>Marché de Yama</strong><small>Documentation de l'API</small></span>
+        </a>
+        <nav aria-label="Navigation">
+            <a class="btn btn--ghost" href="/">Accueil</a>
+            <a class="btn" href="{{ $urlsToDocs[array_key_first($urlsToDocs)] }}">openapi.json</a>
+        </nav>
+    </div>
+</header>
+
+<div class="docs-intro">
+    <h1>Documentation de l'API</h1>
+    <p>Tous les points d'accès du supermarché en ligne. Connectez-vous avec <strong>POST /api/v1/auth/login</strong>, puis collez le jeton dans « Authorize » pour essayer les routes protégées. Les montants sont en centimes.</p>
+</div>
+
 <div id="swagger-ui"></div>
 
 <script src="{{ l5_swagger_asset($documentation, 'swagger-ui-bundle.js') }}"></script>
-<script src="{{ l5_swagger_asset($documentation, 'swagger-ui-standalone-preset.js') }}"></script>
 <script>
     window.onload = function() {
         const urls = [];
@@ -129,11 +92,9 @@
             urls.push({name: @json($title), url: @json($url)});
         @endforeach
 
-        // Build a system
         const ui = SwaggerUIBundle({
             dom_id: '#swagger-ui',
-            urls: urls,
-            "urls.primaryName": @json($documentationTitle),
+            url: urls[0].url,
             operationsSorter: @json($operationsSorter ?? null),
             configUrl: @json($configUrl ?? null),
             validatorUrl: @json($validatorUrl ?? null),
@@ -145,29 +106,17 @@
             },
 
             presets: [
-                SwaggerUIBundle.presets.apis,
-                SwaggerUIStandalonePreset
+                SwaggerUIBundle.presets.apis
             ],
 
-            plugins: [
-                SwaggerUIBundle.plugins.DownloadUrl
-            ],
-
-            layout: "StandaloneLayout",
+            layout: "BaseLayout",
             docExpansion : @json(config('l5-swagger.defaults.ui.display.doc_expansion', 'none')),
             deepLinking: true,
             filter: {!! config('l5-swagger.defaults.ui.display.filter') ? 'true' : 'false' !!},
             persistAuthorization: @json((bool) config('l5-swagger.defaults.ui.authorization.persist_authorization')),
-
         })
 
         window.ui = ui
-
-        @if(in_array('oauth2', array_column(config('l5-swagger.defaults.securityDefinitions.securitySchemes'), 'type')))
-        ui.initOAuth({
-            usePkceWithAuthorizationCodeGrant: @json((bool) config('l5-swagger.defaults.ui.authorization.oauth2.use_pkce_with_authorization_code_grant'))
-        })
-        @endif
     }
 </script>
 </body>

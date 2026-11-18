@@ -10,7 +10,7 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'L5 Swagger UI',
+                'title' => 'Documentation API · Marché de Yama',
             ],
 
             'routes' => [

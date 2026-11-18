@@ -43,6 +43,10 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'adjustment_minor', type: 'integer', description: 'Réel - payé : négatif = à rembourser'),
     new OA\Property(property: 'fulfillment', type: 'string', enum: ['pickup', 'delivery']),
     new OA\Property(property: 'delivery_slot_id', type: 'integer', nullable: true),
+    new OA\Property(property: 'channel', type: 'string', nullable: true, description: 'online ou pos (vente en caisse)'),
+    new OA\Property(property: 'contact_phone', type: 'string', nullable: true),
+    new OA\Property(property: 'delivery_address', type: 'object', nullable: true, description: 'Adresse de livraison (quartier, repère, coordonnées)'),
+    new OA\Property(property: 'created_at', type: 'string', nullable: true),
     new OA\Property(property: 'lines', type: 'array', items: new OA\Items(ref: '#/components/schemas/OrderLine')),
     new OA\Property(property: 'history', type: 'array', items: new OA\Items(ref: '#/components/schemas/OrderHistoryEntry')),
 ])]
@@ -76,6 +80,10 @@ class OrderResource extends JsonResource
             'adjustment_minor' => $order->adjustment_minor,
             'fulfillment' => $order->fulfillment,
             'delivery_slot_id' => $order->delivery_slot_id,
+            'channel' => $order->channel,
+            'contact_phone' => $order->contact_phone,
+            'delivery_address' => $order->delivery_address,
+            'created_at' => $order->created_at?->toIso8601String(),
             'lines' => $order->relationLoaded('lines') ? $order->lines->map(fn ($l) => [
                 'id' => $l->id, 'received_quantity' => $l->final_quantity,
                 'product_id' => $l->product_id, 'sku' => $l->sku, 'name' => $l->name, 'sale_unit' => $l->sale_unit,

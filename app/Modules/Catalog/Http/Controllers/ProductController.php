@@ -7,6 +7,7 @@ namespace App\Modules\Catalog\Http\Controllers;
 use App\Modules\Catalog\Http\Requests\StoreProductRequest;
 use App\Modules\Catalog\Http\Resources\ProductResource;
 use App\Modules\Catalog\Models\Product;
+use App\Modules\Catalog\Services\ProductImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -32,6 +33,7 @@ class ProductController
     public function index(Request $request): AnonymousResourceCollection
     {
         $products = Product::query()
+            ->with('images')
             ->where('is_active', true)
             ->when($request->integer('category_id'), fn ($q, $id) => $q->where('category_id', $id))
             ->when($request->string('q')->toString(), fn ($q, $term) => $q->where('name', 'like', '%'.$term.'%'))
@@ -53,7 +55,7 @@ class ProductController
     )]
     public function show(string $slug): ProductResource
     {
-        return new ProductResource(Product::where('slug', $slug)->where('is_active', true)->firstOrFail());
+        return new ProductResource(Product::with('images')->where('slug', $slug)->where('is_active', true)->firstOrFail());
     }
 
     #[OA\Post(
@@ -67,8 +69,8 @@ class ProductController
             new OA\Response(response: 422, description: 'Validation'),
         ],
     )]
-    public function store(StoreProductRequest $request): JsonResponse
+    public function store(StoreProductRequest $request, ProductImageService $products): JsonResponse
     {
-        return (new ProductResource(Product::create($request->validated())))->response()->setStatusCode(201);
+        return (new ProductResource($products->create($request->validated())->load('images')))->response()->setStatusCode(201);
     }
 }

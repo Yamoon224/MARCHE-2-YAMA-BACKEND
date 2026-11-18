@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Orders\Providers;
 
+use App\Modules\Identity\Contracts\CustomerOrderStats;
 use App\Modules\Orders\Contracts\OrderClaimPort;
 use App\Modules\Orders\Contracts\OrderCustomerDirectory;
 use App\Modules\Orders\Contracts\OrderDeliveryPort;
@@ -11,6 +12,7 @@ use App\Modules\Orders\Contracts\OrderInvoiceReader;
 use App\Modules\Orders\Contracts\OrderPaymentPort;
 use App\Modules\Orders\Contracts\OrderPickingPort;
 use App\Modules\Orders\Contracts\PosOrderPort;
+use App\Modules\Orders\Services\EloquentCustomerOrderStats;
 use App\Modules\Orders\Services\EloquentOrderClaimPort;
 use App\Modules\Orders\Services\EloquentOrderCustomerDirectory;
 use App\Modules\Orders\Services\EloquentOrderDeliveryPort;
@@ -18,6 +20,8 @@ use App\Modules\Orders\Services\EloquentOrderInvoiceReader;
 use App\Modules\Orders\Services\EloquentOrderPaymentPort;
 use App\Modules\Orders\Services\EloquentOrderPickingPort;
 use App\Modules\Orders\Services\EloquentPosOrderPort;
+use App\Modules\Orders\Services\EloquentSalesReader;
+use App\Modules\Reporting\Contracts\SalesReader;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +29,7 @@ class OrdersServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(SalesReader::class, EloquentSalesReader::class);
         $this->app->bind(OrderPaymentPort::class, EloquentOrderPaymentPort::class);
         $this->app->bind(OrderInvoiceReader::class, EloquentOrderInvoiceReader::class);
         $this->app->bind(OrderPickingPort::class, EloquentOrderPickingPort::class);
@@ -32,6 +37,7 @@ class OrdersServiceProvider extends ServiceProvider
         $this->app->bind(OrderClaimPort::class, EloquentOrderClaimPort::class);
         $this->app->bind(OrderCustomerDirectory::class, EloquentOrderCustomerDirectory::class);
         $this->app->bind(PosOrderPort::class, EloquentPosOrderPort::class);
+        $this->app->bind(CustomerOrderStats::class, EloquentCustomerOrderStats::class);
     }
 
     public function boot(): void

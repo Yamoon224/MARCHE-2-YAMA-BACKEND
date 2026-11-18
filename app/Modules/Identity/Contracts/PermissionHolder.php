@@ -10,4 +10,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 interface PermissionHolder extends Authenticatable
 {
     public function hasPermission(string $permission): bool;
+
+    /** Vrai pour tout compte autre qu'un client (équipe du magasin). */
+    public function isStaff(): bool;
 }

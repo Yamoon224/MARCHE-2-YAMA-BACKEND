@@ -69,6 +69,7 @@ return [
 
     // URL publique du backoffice : cible du lien de réinitialisation du mot de passe.
     'backoffice_url' => env('BACKOFFICE_URL', 'http://localhost:3001'),
+    'store_url' => env('STORE_URL', 'http://localhost:3000'),
 
     /*
     |--------------------------------------------------------------------------

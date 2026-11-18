@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Accounting\Providers\AccountingServiceProvider;
+use App\Modules\Audit\Providers\AuditServiceProvider;
 use App\Modules\Catalog\Providers\CatalogServiceProvider;
 use App\Modules\Claims\Providers\ClaimsServiceProvider;
 use App\Modules\Delivery\Providers\DeliveryServiceProvider;
@@ -11,6 +12,8 @@ use App\Modules\Invoicing\Providers\InvoicingServiceProvider;
 use App\Modules\Notifications\Providers\NotificationsServiceProvider;
 use App\Modules\Orders\Providers\OrdersServiceProvider;
 use App\Modules\Payments\Providers\PaymentsServiceProvider;
+use App\Modules\Promotions\Providers\PromotionsServiceProvider;
+use App\Modules\Reporting\Providers\ReportingServiceProvider;
 use App\Providers\AppServiceProvider;
 
 return [
@@ -26,4 +29,7 @@ return [
     FulfillmentServiceProvider::class,
     ClaimsServiceProvider::class,
     NotificationsServiceProvider::class,
+    PromotionsServiceProvider::class,
+    ReportingServiceProvider::class,
+    AuditServiceProvider::class,
 ];

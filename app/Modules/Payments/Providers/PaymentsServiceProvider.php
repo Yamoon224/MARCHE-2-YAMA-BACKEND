@@ -14,6 +14,7 @@ use App\Modules\Payments\Listeners\CollectCashWhenDelivered;
 use App\Modules\Payments\Listeners\RefundOnCancellation;
 use App\Modules\Payments\Listeners\RefundOnPreparationAdjustment;
 use App\Modules\Payments\Services\PaymentsCashDueReader;
+use App\Modules\Payments\Services\PaymentsOrderDetailProvider;
 use App\Modules\Payments\Services\PaymentsPosRecorder;
 use App\Modules\Payments\Services\PaymentsRefundIssuer;
 use Illuminate\Support\Facades\Event;
@@ -25,6 +26,7 @@ class PaymentsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(CashDueReader::class, PaymentsCashDueReader::class);
+        $this->app->tag(PaymentsOrderDetailProvider::class, 'order.details');
         $this->app->bind(RefundIssuer::class, PaymentsRefundIssuer::class);
         $this->app->bind(PosPaymentRecorder::class, PaymentsPosRecorder::class);
     }

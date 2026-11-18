@@ -8,6 +8,7 @@ use App\Modules\Identity\Contracts\ContactDirectory;
 use App\Modules\Identity\Contracts\PermissionHolder;
 use App\Modules\Orders\Actions\PlaceOrderAction;
 use App\Modules\Orders\Actions\TransitionOrderAction;
+use App\Modules\Orders\Contracts\OrderDetailProvider;
 use App\Modules\Orders\Domain\OrderAccess;
 use App\Modules\Orders\DTO\DeliveryChoice;
 use App\Modules\Orders\Enums\OrderStatus;
@@ -18,6 +19,7 @@ use App\Modules\Orders\Exceptions\ProductNotOrderable;
 use App\Modules\Orders\Http\Requests\LookupOrderRequest;
 use App\Modules\Orders\Http\Requests\PlaceOrderRequest;
 use App\Modules\Orders\Http\Requests\TransitionOrderRequest;
+use App\Modules\Orders\Http\Resources\OrderDetailResource;
 use App\Modules\Orders\Http\Resources\OrderResource;
 use App\Modules\Orders\Models\Order;
 use Illuminate\Http\JsonResponse;
@@ -149,21 +151,38 @@ class OrderController
 
     #[OA\Get(
         path: '/api/v1/orders/{order}',
-        summary: 'Détail d\'une commande avec lignes et historique',
+        summary: 'Détail d\'une commande : lignes, historique et, pour le personnel, client, paiements, remboursements et livraison',
         security: [['sanctum' => []]],
         tags: ['Commandes'],
         parameters: [new OA\Parameter(name: 'order', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
         responses: [
-            new OA\Response(response: 200, description: 'Commande', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/Order')])),
+            new OA\Response(response: 200, description: 'Commande (schéma OrderDetail pour le personnel)', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/OrderDetail')])),
             new OA\Response(response: 403, description: 'Interdit'),
             new OA\Response(response: 404, description: 'Introuvable'),
         ],
     )]
-    public function show(Request $request, Order $order): OrderResource
+    public function show(Request $request, Order $order, ContactDirectory $contacts): OrderResource
     {
-        abort_unless($this->access->canView($this->user($request), $order), 403, 'Action non autorisée.');
+        $user = $this->user($request);
+        abort_unless($this->access->canView($user, $order), 403, 'Action non autorisée.');
 
-        return new OrderResource($order->load(['lines', 'history']));
+        $order->load(['lines', 'history']);
+
+        // Le client ne voit que sa commande ; le personnel a en plus le client, les paiements et la livraison.
+        if (! $user->hasPermission('orders.view') && ! $user->hasPermission('orders.manage')) {
+            return new OrderResource($order);
+        }
+
+        $sections = [];
+
+        /** @var OrderDetailProvider $provider */
+        foreach (app()->tagged('order.details') as $provider) {
+            $sections[$provider->key()] = $provider->detailsFor($order->id) ?? ($provider->key() === 'payments' ? [] : null);
+        }
+
+        $contact = $order->user_id !== null ? $contacts->contactOf((int) $order->user_id) : null;
+
+        return new OrderDetailResource($order, $sections, $contact === null ? null : ['id' => (int) $order->user_id] + $contact);
     }
 
     #[OA\Post(

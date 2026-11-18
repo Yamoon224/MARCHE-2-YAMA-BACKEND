@@ -9,6 +9,8 @@ use App\Modules\Catalog\Enums\SaleUnit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property SaleUnit $sale_unit
@@ -16,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'category_id', 'sku', 'barcode', 'name', 'slug', 'description', 'image_url', 'sale_unit',
@@ -46,5 +48,19 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /** @return HasMany<ProductImage, $this> */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('position')->orderBy('id');
+    }
+
+    /** Image de couverture : celle marquée comme telle, sinon la première. */
+    public function coverImage(): ?ProductImage
+    {
+        $images = $this->images;
+
+        return $images->firstWhere('is_cover', true) ?? $images->first();
     }
 }

@@ -88,6 +88,155 @@
                 ]
             }
         },
+        "/api/v1/audit": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Journal d'audit des actions du personnel (permission audit.view)",
+                "operationId": "e6e5db2ce965b4b834e9a79cb0222a53",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "method",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "POST",
+                                "PUT",
+                                "PATCH",
+                                "DELETE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "path",
+                        "in": "query",
+                        "description": "Fragment du chemin",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "failed",
+                        "in": "query",
+                        "description": "true : réponses en erreur (>= 400) seulement",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Entrées, les plus récentes d'abord",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditLogPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/audit/verify": {
+            "get": {
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Vérifier l'intégrité de la chaîne de hachage du journal",
+                "operationId": "3a49f2039ee2eb1dac3dd8028eced41a",
+                "responses": {
+                    "200": {
+                        "description": "Résultat du contrôle",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "required": [
+                                                "valid",
+                                                "checked"
+                                            ],
+                                            "properties": {
+                                                "valid": {
+                                                    "type": "boolean"
+                                                },
+                                                "checked": {
+                                                    "description": "Entrées contrôlées avec succès",
+                                                    "type": "integer"
+                                                },
+                                                "broken_at_id": {
+                                                    "description": "Première entrée altérée",
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/catalog/banners": {
             "get": {
                 "tags": [
@@ -474,6 +623,18 @@
                         }
                     },
                     {
+                        "name": "trashed",
+                        "in": "query",
+                        "description": "with : y compris supprimés ; only : uniquement les supprimés",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "with",
+                                "only"
+                            ]
+                        }
+                    },
+                    {
                         "name": "page",
                         "in": "query",
                         "schema": {
@@ -506,14 +667,98 @@
                         "sanctum": []
                     }
                 ]
+            },
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Créer un produit",
+                "operationId": "02c4b6197db0f817d1b3ad5b54a7f33e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Produit créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         },
         "/api/v1/catalog/products/{product}": {
+            "get": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Détails d'un produit (même supprimé) avec sa galerie",
+                "operationId": "8cbf5c06795b028ae0c6d799760a44da",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produit",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "Catalogue (gestion)"
                 ],
-                "summary": "Modifier un produit (prix, promotion, image, visibilité)",
+                "summary": "Modifier un produit (prix, promotion, visibilité…)",
                 "operationId": "9acd1a7f306b624ff8e264322874fa57",
                 "parameters": [
                     {
@@ -553,6 +798,316 @@
                     },
                     "422": {
                         "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Supprimer un produit (suppression douce, restaurable)",
+                "operationId": "1bf1f2e96e6fadb9f5a530930ccdbf87",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé : il disparaît du catalogue, les commandes passées le conservent"
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products/{product}/restore": {
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Restaurer un produit supprimé",
+                "operationId": "bce585b91eae1c4d91b743c2ea21fd84",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produit restauré",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products/{product}/images": {
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Ajouter des images (10 au plus par produit ; la première devient la couverture)",
+                "operationId": "f7201acfb2a06cecaa32831b0d87c6ce",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "images"
+                                ],
+                                "properties": {
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Produit avec sa galerie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Fichier refusé ou trop d'images"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products/{product}/images/order": {
+            "put": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Réordonner la galerie",
+                "operationId": "cff9925896ca6ca70e3b10e379618d8e",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ids"
+                                ],
+                                "properties": {
+                                    "ids": {
+                                        "description": "Toutes les images du produit, dans le nouvel ordre",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Produit avec sa galerie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Liste incomplète"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products/{product}/images/{image}/cover": {
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Choisir l'image de couverture",
+                "operationId": "21f66a9c2418d8c233b4f30dd9685e38",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "image",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produit avec sa galerie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Image introuvable pour ce produit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products/{product}/images/{image}": {
+            "delete": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Supprimer une image (le fichier est effacé)",
+                "operationId": "1b6fdde6e7b61edf03f095d12e9e4fb8",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "image",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produit avec sa galerie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Product"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Image introuvable pour ce produit"
                     }
                 },
                 "security": [
@@ -3022,6 +3577,89 @@
                 }
             }
         },
+        "/api/v1/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Envoie un lien de réinitialisation du mot de passe (compte du personnel). Réponse identique que le compte existe ou non.",
+                "operationId": "50441dbc71a84e665875004625bb2f87",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "agent@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Demande enregistrée"
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Choisit un nouveau mot de passe avec le jeton reçu par e-mail (usage unique, durée limitée)",
+                "operationId": "e523547708dc838974145a2cff3a2563",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Mot de passe changé"
+                    },
+                    "422": {
+                        "description": "Lien invalide ou expiré, ou mot de passe refusé"
+                    }
+                }
+            }
+        },
         "/api/v1/auth/me": {
             "get": {
                 "tags": [
@@ -3066,6 +3704,487 @@
                 "responses": {
                     "204": {
                         "description": "Jeton révoqué"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customers": {
+            "get": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Liste des clients avec nombre de commandes et total dépensé (permission customers.view)",
+                "operationId": "60afd4f4e69f1f0d96839a26298370b5",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Recherche nom, e-mail ou téléphone",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "guest",
+                        "in": "query",
+                        "description": "true : invités seulement ; false : comptes seulement",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Clients paginés",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomerPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customers/{user}": {
+            "get": {
+                "tags": [
+                    "Clients"
+                ],
+                "summary": "Fiche d'un client",
+                "operationId": "3afa2e485b51c34d2a548ac1b614bbfe",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Client",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomerResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/roles": {
+            "get": {
+                "tags": [
+                    "Personnel"
+                ],
+                "summary": "Rôles attribuables au personnel, avec libellé et permissions (permission users.manage)",
+                "operationId": "bd9dbee3943915034bb9d078f9399e4b",
+                "responses": {
+                    "200": {
+                        "description": "Rôles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "value",
+                                                    "label",
+                                                    "permissions"
+                                                ],
+                                                "properties": {
+                                                    "value": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string"
+                                                    },
+                                                    "permissions": {
+                                                        "description": "« * » : toutes les permissions",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/staff": {
+            "get": {
+                "tags": [
+                    "Personnel"
+                ],
+                "summary": "Liste du personnel (permission users.manage)",
+                "operationId": "e8b0ab8283a622a19265b9cf6511f14d",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Recherche nom, e-mail ou téléphone",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Personnel paginé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StaffPage"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Personnel"
+                ],
+                "summary": "Créer un compte du personnel",
+                "operationId": "df0f0cc5e9fa145703ecbf174c611612",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "role",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "picker"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Compte créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StaffMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/staff/{user}": {
+            "get": {
+                "tags": [
+                    "Personnel"
+                ],
+                "summary": "Détail d'un membre du personnel",
+                "operationId": "da1cdb69f4e0d3aeca046fabee06c492",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Membre",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StaffMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Personnel"
+                ],
+                "summary": "Modifier un membre du personnel (nom, contacts, rôle, mot de passe)",
+                "operationId": "b58004fc77babdc3adc850ed554d4c9d",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "role": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte mis à jour",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StaffMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    },
+                    "422": {
+                        "description": "Validation, ou changement de rôle interdit (son propre rôle, dernier administrateur)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Personnel"
+                ],
+                "summary": "Désactiver un compte (connexion impossible, jetons révoqués ; pas de suppression)",
+                "operationId": "aef0946fc4bcf8b0e3a71f8116741c91",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compte désactivé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StaffMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    },
+                    "422": {
+                        "description": "Son propre compte ou dernier administrateur"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/staff/{user}/reactivate": {
+            "post": {
+                "tags": [
+                    "Personnel"
+                ],
+                "summary": "Réactiver un compte désactivé",
+                "operationId": "5e5e59c8b59380d6bc0b5db5264209f9",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compte réactivé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StaffMemberResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
                     }
                 },
                 "security": [
@@ -3660,7 +4779,7 @@
                 "tags": [
                     "Commandes"
                 ],
-                "summary": "Détail d'une commande avec lignes et historique",
+                "summary": "Détail d'une commande : lignes, historique et, pour le personnel, client, paiements, remboursements et livraison",
                 "operationId": "c74a658d8b9d269ab6b1c98c37253955",
                 "parameters": [
                     {
@@ -3674,13 +4793,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Commande",
+                        "description": "Commande (schéma OrderDetail pour le personnel)",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/Order"
+                                            "$ref": "#/components/schemas/OrderDetail"
                                         }
                                     },
                                     "type": "object"
@@ -4442,10 +5561,752 @@
                     }
                 ]
             }
+        },
+        "/api/v1/promotions": {
+            "get": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Codes promotionnels (permission promotions.manage)",
+                "operationId": "a193e04cc3381e6c278153504c6071c4",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "scheduled",
+                                "expired",
+                                "exhausted",
+                                "disabled"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Codes paginés",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromotionPage"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Créer un code promotionnel",
+                "operationId": "26897e9af39601c0c7a9b0e90ed347da",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code",
+                                    "type",
+                                    "value"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "BIENVENUE10"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "percent",
+                                            "fixed"
+                                        ]
+                                    },
+                                    "value": {
+                                        "type": "integer"
+                                    },
+                                    "min_order_minor": {
+                                        "type": "integer"
+                                    },
+                                    "max_uses": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "starts_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "ends_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Code créé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromotionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/promotions/{promotion}": {
+            "get": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Détail d'un code",
+                "operationId": "78f781554ac4e327be286ff81814c879",
+                "parameters": [
+                    {
+                        "name": "promotion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromotionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Introuvable"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Modifier un code",
+                "operationId": "9befcc76dfa97d2b54a2ee53d5c3401b",
+                "parameters": [
+                    {
+                        "name": "promotion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "percent",
+                                            "fixed"
+                                        ]
+                                    },
+                                    "value": {
+                                        "type": "integer"
+                                    },
+                                    "min_order_minor": {
+                                        "type": "integer"
+                                    },
+                                    "max_uses": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "starts_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "ends_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Code mis à jour",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromotionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Supprimer un code jamais utilisé",
+                "operationId": "535c67c8a0320bc37f7d65159c003eb5",
+                "parameters": [
+                    {
+                        "name": "promotion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    },
+                    "422": {
+                        "description": "Code déjà utilisé : le désactiver plutôt"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/promotions/{promotion}/activate": {
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Activer un code",
+                "operationId": "4507efeb2e62ffe763612a8a5c453644",
+                "parameters": [
+                    {
+                        "name": "promotion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromotionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/promotions/{promotion}/deactivate": {
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Désactiver un code",
+                "operationId": "3f021e67149c0221bda1f26f3de70b14",
+                "parameters": [
+                    {
+                        "name": "promotion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromotionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/promotions/validate": {
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Contrôler un code pour un sous-total et obtenir la remise (n'incrémente pas l'usage)",
+                "operationId": "1f4486731e5c9fcb90045f5cc3e628d9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code",
+                                    "subtotal"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "subtotal": {
+                                        "description": "Sous-total du panier en centimes",
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Code valable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "required": [
+                                                "code",
+                                                "type",
+                                                "discount_minor",
+                                                "total_after_discount_minor"
+                                            ],
+                                            "properties": {
+                                                "code": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "discount_minor": {
+                                                    "type": "integer"
+                                                },
+                                                "total_after_discount_minor": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Code inconnu, inactif, expiré, épuisé ou minimum non atteint"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/dashboard": {
+            "get": {
+                "tags": [
+                    "Rapports"
+                ],
+                "summary": "Tableau de bord : CA, commandes, panier moyen, ventes par jour, meilleurs produits, alertes (permission reports.view)",
+                "operationId": "deedd372c0f08de22ea751fed0801ea6",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "AAAA-MM-JJ, défaut : il y a 29 jours",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "AAAA-MM-JJ inclus, défaut : aujourd'hui",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Indicateurs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Dashboard"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Période invalide"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/sales": {
+            "get": {
+                "tags": [
+                    "Rapports"
+                ],
+                "summary": "Ventes regroupées par jour, produit ou catégorie, en JSON ou en CSV (permission reports.view)",
+                "operationId": "d5727b331e87557130ccf08314da8058",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "group",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "default": "day",
+                            "enum": [
+                                "day",
+                                "product",
+                                "category"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "description": "csv : téléchargement",
+                        "schema": {
+                            "type": "string",
+                            "default": "json",
+                            "enum": [
+                                "json",
+                                "csv"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lignes de ventes (ou fichier CSV)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "required": [
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "data": {
+                                            "required": [
+                                                "period",
+                                                "currency",
+                                                "group",
+                                                "rows",
+                                                "totals"
+                                            ],
+                                            "properties": {
+                                                "period": {
+                                                    "properties": {
+                                                        "from": {
+                                                            "type": "string",
+                                                            "format": "date"
+                                                        },
+                                                        "to": {
+                                                            "type": "string",
+                                                            "format": "date"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "currency": {
+                                                    "type": "string"
+                                                },
+                                                "group": {
+                                                    "type": "string"
+                                                },
+                                                "rows": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "required": [
+                                                            "key",
+                                                            "label",
+                                                            "revenue_minor"
+                                                        ],
+                                                        "properties": {
+                                                            "key": {
+                                                                "type": "string"
+                                                            },
+                                                            "label": {
+                                                                "type": "string"
+                                                            },
+                                                            "orders_count": {
+                                                                "description": "Renseigné pour group=day",
+                                                                "type": "integer",
+                                                                "nullable": true
+                                                            },
+                                                            "quantity": {
+                                                                "description": "Renseigné pour group=product|category",
+                                                                "type": "integer",
+                                                                "nullable": true
+                                                            },
+                                                            "revenue_minor": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "totals": {
+                                                    "properties": {
+                                                        "revenue_minor": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Interdit"
+                    },
+                    "422": {
+                        "description": "Paramètres invalides"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
         "schemas": {
+            "AuditLog": {
+                "required": [
+                    "id",
+                    "user_id",
+                    "method",
+                    "path",
+                    "status",
+                    "payload",
+                    "created_at",
+                    "hash"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    },
+                    "method": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "ip": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "payload": {
+                        "description": "Données envoyées, secrets masqués",
+                        "type": "object",
+                        "additionalProperties": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "hash": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "AuditLogPage": {
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditLog"
+                        }
+                    },
+                    "meta": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer"
+                            },
+                            "last_page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "CategoryInput": {
                 "required": [
                     "name",
@@ -4752,8 +6613,20 @@
                         "type": "integer"
                     },
                     "image_url": {
+                        "description": "URL de la couverture (compatibilité : équivaut à cover)",
                         "type": "string",
                         "nullable": true
+                    },
+                    "cover": {
+                        "description": "URL de la couverture",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductImage"
+                        }
                     },
                     "compare_at_price_minor": {
                         "description": "Ancien prix (promotion) ou null",
@@ -4772,6 +6645,34 @@
                         "type": "boolean"
                     },
                     "is_active": {
+                        "type": "boolean"
+                    },
+                    "deleted_at": {
+                        "description": "Date de suppression douce (null : produit en ligne)",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ProductImage": {
+                "required": [
+                    "id",
+                    "url",
+                    "position",
+                    "is_cover"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "is_cover": {
                         "type": "boolean"
                     }
                 },
@@ -5330,6 +7231,182 @@
                 },
                 "type": "object"
             },
+            "Customer": {
+                "required": [
+                    "id",
+                    "name",
+                    "is_guest",
+                    "is_active",
+                    "orders_count",
+                    "total_spent_minor"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "is_guest": {
+                        "type": "boolean"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "orders_count": {
+                        "type": "integer"
+                    },
+                    "total_spent_minor": {
+                        "description": "Total des commandes aboutties, en centimes",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CustomerResponse": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Customer"
+                    }
+                },
+                "type": "object"
+            },
+            "CustomerPage": {
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Customer"
+                        }
+                    },
+                    "meta": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer"
+                            },
+                            "last_page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "StaffMember": {
+                "required": [
+                    "id",
+                    "name",
+                    "role",
+                    "role_label",
+                    "is_active"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "role_label": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "deactivated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "StaffMemberResponse": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/StaffMember"
+                    }
+                },
+                "type": "object"
+            },
+            "StaffPage": {
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StaffMember"
+                        }
+                    },
+                    "meta": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer"
+                            },
+                            "last_page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "required": [
                     "id",
@@ -5618,6 +7695,129 @@
                 },
                 "type": "object"
             },
+            "OrderDetail": {
+                "description": "Commande + détails pour le personnel (client, paiements et remboursements, livraison)",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Order"
+                    },
+                    {
+                        "properties": {
+                            "customer": {
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            },
+                            "payments": {
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "reference": {
+                                            "type": "string"
+                                        },
+                                        "method": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "amount_minor": {
+                                            "type": "integer"
+                                        },
+                                        "currency": {
+                                            "type": "string"
+                                        },
+                                        "needs_refund": {
+                                            "type": "boolean"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "refunds": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "reference": {
+                                                        "type": "string"
+                                                    },
+                                                    "amount_minor": {
+                                                        "type": "integer"
+                                                    },
+                                                    "status": {
+                                                        "type": "string"
+                                                    },
+                                                    "kind": {
+                                                        "type": "string"
+                                                    },
+                                                    "reason": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "delivery": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "courier_name": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "cash_collected_minor": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    },
+                                    "failure_reason": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "assigned_at": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "delivered_at": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    },
+                    {
+                        "$ref": "#/components/schemas/OrderPage"
+                    }
+                ]
+            },
             "OrderLine": {
                 "required": [
                     "id",
@@ -5759,6 +7959,24 @@
                     },
                     "delivery_slot_id": {
                         "type": "integer",
+                        "nullable": true
+                    },
+                    "channel": {
+                        "description": "online ou pos (vente en caisse)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "contact_phone": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "delivery_address": {
+                        "description": "Adresse de livraison (quartier, repère, coordonnées)",
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
                         "nullable": true
                     },
                     "lines": {
@@ -6056,6 +8274,261 @@
                     }
                 },
                 "type": "object"
+            },
+            "Promotion": {
+                "required": [
+                    "id",
+                    "code",
+                    "type",
+                    "value",
+                    "state",
+                    "is_active",
+                    "used_count"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "percent",
+                            "fixed"
+                        ]
+                    },
+                    "value": {
+                        "description": "Pourcentage (1-100) ou centimes selon le type",
+                        "type": "integer"
+                    },
+                    "min_order_minor": {
+                        "type": "integer"
+                    },
+                    "max_uses": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "used_count": {
+                        "type": "integer"
+                    },
+                    "starts_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "ends_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "state": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "scheduled",
+                            "expired",
+                            "exhausted",
+                            "disabled"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "PromotionResponse": {
+                "required": [
+                    "data"
+                ],
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Promotion"
+                    }
+                },
+                "type": "object"
+            },
+            "PromotionPage": {
+                "required": [
+                    "data",
+                    "meta"
+                ],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Promotion"
+                        }
+                    },
+                    "meta": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer"
+                            },
+                            "last_page": {
+                                "type": "integer"
+                            },
+                            "per_page": {
+                                "type": "integer"
+                            },
+                            "total": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "Dashboard": {
+                "required": [
+                    "period",
+                    "currency",
+                    "revenue_minor",
+                    "orders_count",
+                    "average_basket_minor",
+                    "orders_by_status",
+                    "sales_by_day",
+                    "top_products",
+                    "alerts"
+                ],
+                "properties": {
+                    "period": {
+                        "required": [
+                            "from",
+                            "to"
+                        ],
+                        "properties": {
+                            "from": {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            "to": {
+                                "type": "string",
+                                "format": "date"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "EUR"
+                    },
+                    "revenue_minor": {
+                        "description": "Chiffre d'affaires TTC des commandes aboutissantes, en centimes",
+                        "type": "integer"
+                    },
+                    "orders_count": {
+                        "description": "Commandes comptées comme ventes",
+                        "type": "integer"
+                    },
+                    "average_basket_minor": {
+                        "type": "integer"
+                    },
+                    "orders_by_status": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "status",
+                                "count"
+                            ],
+                            "properties": {
+                                "status": {
+                                    "type": "string"
+                                },
+                                "count": {
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "sales_by_day": {
+                        "description": "Un point par jour de la période",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "date",
+                                "orders_count",
+                                "revenue_minor"
+                            ],
+                            "properties": {
+                                "date": {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                "orders_count": {
+                                    "type": "integer"
+                                },
+                                "revenue_minor": {
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "top_products": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "product_id",
+                                "name",
+                                "quantity",
+                                "revenue_minor"
+                            ],
+                            "properties": {
+                                "product_id": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "quantity": {
+                                    "description": "Unité de base : pièces, grammes ou millilitres",
+                                    "type": "integer"
+                                },
+                                "revenue_minor": {
+                                    "type": "integer"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "alerts": {
+                        "required": [
+                            "expiring_lots",
+                            "expiring_lots_days",
+                            "out_of_stock_products",
+                            "open_claims",
+                            "late_deliveries"
+                        ],
+                        "properties": {
+                            "expiring_lots": {
+                                "type": "integer"
+                            },
+                            "expiring_lots_days": {
+                                "type": "integer"
+                            },
+                            "out_of_stock_products": {
+                                "type": "integer"
+                            },
+                            "open_claims": {
+                                "type": "integer"
+                            },
+                            "late_deliveries": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
             }
         },
         "securitySchemes": {
@@ -6070,6 +8543,10 @@
         {
             "name": "Comptabilité",
             "description": "Comptabilité"
+        },
+        {
+            "name": "Audit",
+            "description": "Audit"
         },
         {
             "name": "Catalogue (gestion)",
@@ -6096,6 +8573,14 @@
             "description": "Auth"
         },
         {
+            "name": "Clients",
+            "description": "Clients"
+        },
+        {
+            "name": "Personnel",
+            "description": "Personnel"
+        },
+        {
             "name": "Stock",
             "description": "Stock"
         },
@@ -6118,6 +8603,14 @@
         {
             "name": "Caisse",
             "description": "Caisse"
+        },
+        {
+            "name": "Promotions",
+            "description": "Promotions"
+        },
+        {
+            "name": "Rapports",
+            "description": "Rapports"
         }
     ]
 }

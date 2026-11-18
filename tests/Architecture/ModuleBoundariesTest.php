@@ -118,3 +118,52 @@ arch('Notifications only listens to public events and contracts of other modules
 arch('Notification channels implement the channel port')
     ->expect('App\Modules\Notifications\Channels')
     ->toImplement('App\Modules\Notifications\Contracts\NotificationChannel');
+
+arch('Promotions is independent from every other module')
+    ->expect('App\Modules\Promotions')
+    ->not->toUse([
+        'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Orders', 'App\Modules\Payments', 'App\Modules\Invoicing',
+        'App\Modules\Accounting', 'App\Modules\Delivery', 'App\Modules\Fulfillment', 'App\Modules\Claims', 'App\Modules\Notifications',
+        'App\Modules\Identity', 'App\Modules\Audit', 'App\Modules\Reporting',
+    ]);
+
+arch('Audit knows other modules only through the Identity permission contract')
+    ->expect('App\Modules\Audit')
+    ->not->toUse([
+        'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Orders', 'App\Modules\Payments', 'App\Modules\Invoicing',
+        'App\Modules\Accounting', 'App\Modules\Delivery', 'App\Modules\Fulfillment', 'App\Modules\Claims', 'App\Modules\Notifications',
+        'App\Modules\Promotions', 'App\Modules\Reporting',
+        'App\Modules\Identity\Models', 'App\Modules\Identity\Enums', 'App\Modules\Identity\Actions', 'App\Modules\Identity\Services',
+    ]);
+
+arch('Reporting reads other modules only through its own contracts')
+    ->expect('App\Modules\Reporting')
+    ->not->toUse([
+        'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Orders', 'App\Modules\Payments', 'App\Modules\Invoicing',
+        'App\Modules\Accounting', 'App\Modules\Delivery', 'App\Modules\Fulfillment', 'App\Modules\Claims', 'App\Modules\Notifications',
+        'App\Modules\Identity', 'App\Modules\Promotions', 'App\Modules\Audit',
+    ]);
+
+arch('Reporting contracts are interfaces')
+    ->expect('App\Modules\Reporting\Contracts')
+    ->toBeInterfaces();
+
+arch('source modules touch Reporting only through its contracts')
+    ->expect(['App\Modules\Orders', 'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Claims', 'App\Modules\Delivery'])
+    ->not->toUse(['App\Modules\Reporting\Services', 'App\Modules\Reporting\Http', 'App\Modules\Reporting\Providers']);
+
+arch('no business module depends on Promotions or Audit')
+    ->expect([
+        'App\Modules\Catalog', 'App\Modules\Inventory', 'App\Modules\Orders', 'App\Modules\Payments', 'App\Modules\Invoicing',
+        'App\Modules\Accounting', 'App\Modules\Delivery', 'App\Modules\Fulfillment', 'App\Modules\Claims', 'App\Modules\Notifications',
+        'App\Modules\Identity', 'App\Modules\Reporting',
+    ])
+    ->not->toUse(['App\Modules\Promotions', 'App\Modules\Audit']);
+
+arch('Identity does not know Reporting')
+    ->expect('App\Modules\Identity')
+    ->not->toUse('App\Modules\Reporting');
+
+arch('the audit log is immutable')
+    ->expect('App\Modules\Audit\Models\AuditLog')
+    ->toUseTrait('App\Shared\Concerns\Immutable');

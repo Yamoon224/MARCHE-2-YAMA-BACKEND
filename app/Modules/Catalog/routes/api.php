@@ -21,7 +21,15 @@ Route::get('recipes', [RecipeController::class, 'index']);
 // Gestion du contenu de la vitrine (rôles disposant de catalog.manage).
 Route::prefix('catalog')->middleware(['auth:sanctum', 'permission:catalog.manage'])->group(function () {
     Route::get('products', [ProductAdminController::class, 'index']);
+    Route::post('products', [ProductAdminController::class, 'store']);
+    Route::get('products/{product}', [ProductAdminController::class, 'show'])->whereNumber('product');
     Route::put('products/{product}', [ProductAdminController::class, 'update']);
+    Route::delete('products/{product}', [ProductAdminController::class, 'destroy']);
+    Route::post('products/{product}/restore', [ProductAdminController::class, 'restore']);
+    Route::post('products/{product}/images', [ProductAdminController::class, 'addImages']);
+    Route::put('products/{product}/images/order', [ProductAdminController::class, 'reorderImages']);
+    Route::post('products/{product}/images/{image}/cover', [ProductAdminController::class, 'setCover']);
+    Route::delete('products/{product}/images/{image}', [ProductAdminController::class, 'removeImage']);
     Route::apiResource('categories', CategoryAdminController::class)->except('show');
     Route::apiResource('banners', BannerAdminController::class)->except('show');
     Route::apiResource('recipes', RecipeAdminController::class)->except('show');

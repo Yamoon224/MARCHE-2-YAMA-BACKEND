@@ -19,6 +19,10 @@ final class LoginAction
             throw ValidationException::withMessages(['login' => ['Identifiants incorrects.']]);
         }
 
+        if (! $user->isActive()) {
+            throw ValidationException::withMessages(['login' => ['Ce compte est désactivé. Contactez un administrateur.']]);
+        }
+
         return ['user' => $user, 'token' => $user->createToken('api')->plainTextToken];
     }
 }

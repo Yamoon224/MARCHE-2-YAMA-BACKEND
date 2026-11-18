@@ -5,13 +5,20 @@ declare(strict_types=1);
 namespace App\Modules\Claims\Providers;
 
 use App\Modules\Claims\Listeners\MarkClaimRefundCompleted;
+use App\Modules\Claims\Services\EloquentClaimAlertReader;
 use App\Modules\Payments\Events\RefundIssued;
+use App\Modules\Reporting\Contracts\ClaimAlertReader;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class ClaimsServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->bind(ClaimAlertReader::class, EloquentClaimAlertReader::class);
+    }
+
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
