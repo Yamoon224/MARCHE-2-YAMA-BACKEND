@@ -89,11 +89,11 @@ final class PlaceOrderAction
                 $this->delivery->bookSlot($delivery->slotId, $delivery->zoneId, $order->id);
             }
 
-            $this->stock->reserve(
-                "order:{$order->id}",
-                $quantities,
-                now()->addMinutes((int) config('orders.payment_window_minutes')),
-            );
+            // $this->stock->reserve(
+            //     "order:{$order->id}",
+            //     $quantities,
+            //     now()->addMinutes((int) config('orders.payment_window_minutes')),
+            // );
 
             OrderStatusHistory::create([
                 'order_id' => $order->id, 'from_status' => null,
