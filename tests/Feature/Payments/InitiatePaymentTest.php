@@ -86,3 +86,12 @@ it('refuses to validate a payment that is not cash on delivery', function () {
     $this->actingAs(User::factory()->role(Role::Admin)->create(), 'sanctum')
         ->postJson("/api/v1/payments/{$paymentId}/validate-cash-on-delivery")->assertUnprocessable();
 });
+
+it('does not create a second cash payment when cash is chosen twice', function () {
+    ['customer' => $customer, 'orderId' => $orderId] = awaitingPaymentOrder();
+
+    $first = startPayment($customer, $orderId, 'cash_on_delivery')->assertCreated()->json('data.id');
+    $second = startPayment($customer, $orderId, 'cash_on_delivery', 'another-key')->json('data.id');
+
+    expect($second)->toBe($first)->and(Payment::where('order_id', $orderId)->count())->toBe(1);
+});

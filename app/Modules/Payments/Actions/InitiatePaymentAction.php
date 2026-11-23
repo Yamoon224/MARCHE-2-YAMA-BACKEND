@@ -48,6 +48,12 @@ final class InitiatePaymentAction
         $reference = 'PAY-'.Str::upper((string) Str::ulid());
 
         if (! $method->isOnline()) {
+            // Choisir « espèces » deux fois ne crée pas deux paiements : on reprend celui qui attend déjà.
+            $waiting = Payment::where('order_id', $orderId)->where('method', $method)->where('status', PaymentStatus::PendingOnDelivery)->first();
+            if ($waiting !== null) {
+                return $waiting;
+            }
+
             return Payment::create([
                 'reference' => $reference, 'order_id' => $orderId, 'provider' => 'cod', 'method' => $method,
                 'status' => PaymentStatus::PendingOnDelivery, 'amount_minor' => $order->totalMinor,
