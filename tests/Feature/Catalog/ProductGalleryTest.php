@@ -151,7 +151,7 @@ it('refuses to order a deleted product but keeps past order lines readable', fun
 
     $this->actingAs(galleryManager(), 'sanctum')->deleteJson("/api/v1/catalog/products/{$line->product_id}")->assertNoContent();
 
-    $this->actingAs($ctx['customer'], 'sanctum')->getJson("/api/v1/orders/{$orderId}")
+    $this->actingAs($ctx['customer'], 'sanctum')->getJson('/api/v1/orders/'.orderUuid($orderId))
         ->assertOk()->assertJsonPath('data.lines.0.product_id', $line->product_id)->assertJsonPath('data.lines.0.name', $line->name);
     $this->actingAs($ctx['customer'], 'sanctum')->postJson('/api/v1/orders', ['items' => [['product_id' => $line->product_id, 'quantity' => 1]]])->assertUnprocessable();
 });

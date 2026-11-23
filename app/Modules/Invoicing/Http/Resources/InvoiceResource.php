@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Invoicing\Http\Resources;
 
+use App\Shared\PublicId;
 use App\Modules\Invoicing\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,7 +21,7 @@ use OpenApi\Attributes as OA;
 ])]
 #[OA\Schema(schema: 'Invoice', required: ['number', 'order_id', 'total_minor', 'vat_minor', 'net_minor'], properties: [
     new OA\Property(property: 'number', type: 'string', example: 'FAC-2026-000001'),
-    new OA\Property(property: 'order_id', type: 'integer'),
+    new OA\Property(property: 'order_id', type: 'string', format: 'uuid'),
     new OA\Property(property: 'issued_at', type: 'string'),
     new OA\Property(property: 'currency', type: 'string'),
     new OA\Property(property: 'total_minor', type: 'integer', description: 'Total TTC'),
@@ -48,7 +49,7 @@ class InvoiceResource extends JsonResource
 
         return [
             'number' => $invoice->number,
-            'order_id' => $invoice->order_id,
+            'order_id' => PublicId::uuid('orders', $invoice->order_id),
             'issued_at' => $invoice->issued_at->toIso8601String(),
             'currency' => $invoice->currency,
             'total_minor' => $invoice->total_minor,

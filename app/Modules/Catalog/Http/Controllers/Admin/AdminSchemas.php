@@ -52,6 +52,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'price_minor', type: 'integer'),
     new OA\Property(property: 'compare_at_price_minor', type: 'integer', nullable: true),
     new OA\Property(property: 'is_featured', type: 'boolean'),
+    new OA\Property(property: 'track_stock', type: 'boolean'),
     new OA\Property(property: 'is_active', type: 'boolean'),
 ])]
 #[OA\Schema(schema: 'MediaUpload', required: ['url'], properties: [new OA\Property(property: 'url', type: 'string')])]

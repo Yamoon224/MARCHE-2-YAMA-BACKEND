@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Event;
 function refund(int $orderId, array $body, ?User $as = null, array $headers = [])
 {
     return test()->actingAs($as ?? User::factory()->role(Role::Support)->create(), 'sanctum')
-        ->postJson("/api/v1/orders/{$orderId}/refunds", $body, $headers);
+        ->postJson('/api/v1/orders/'.orderUuid($orderId).'/refunds', $body, $headers);
 }
 
 beforeEach(function () {
@@ -35,7 +35,7 @@ it('is limited to authorised roles', function () {
     $body = ['amount_minor' => 1000, 'reason' => 'Geste commercial'];
 
     asGuest();
-    $this->postJson("/api/v1/orders/{$this->orderId}/refunds", $body)->assertUnauthorized();
+    $this->postJson('/api/v1/orders/'.orderUuid($this->orderId).'/refunds', $body)->assertUnauthorized();
     refund($this->orderId, $body, $this->ctx['customer'])->assertForbidden();
     refund($this->orderId, $body, User::factory()->role(Role::Courier)->create())->assertForbidden();
     refund($this->orderId, $body, User::factory()->role(Role::Accountant)->create())->assertForbidden();
@@ -92,7 +92,7 @@ it('refunds once per Idempotency-Key and again without one', function () {
 
 it('tells how much is still refundable', function () {
     $support = User::factory()->role(Role::Support)->create();
-    $url = "/api/v1/orders/{$this->orderId}/refunds";
+    $url = '/api/v1/orders/'.orderUuid($this->orderId).'/refunds';
 
     $this->actingAs($support, 'sanctum')->getJson($url)->assertOk()->assertJsonPath('meta.refundable_minor', 10_000);
 
@@ -106,12 +106,12 @@ it('tells how much is still refundable', function () {
 
     // Une commande non payée n'a rien de remboursable.
     $unpaid = awaitingPaymentOrder();
-    $this->actingAs($support, 'sanctum')->getJson("/api/v1/orders/{$unpaid['orderId']}/refunds")->assertOk()->assertJsonPath('meta.refundable_minor', 0);
+    $this->actingAs($support, 'sanctum')->getJson('/api/v1/orders/'.orderUuid($unpaid['orderId']).'/refunds')->assertOk()->assertJsonPath('meta.refundable_minor', 0);
 });
 
 it('lists the refunds of an order to its owner and to staff only', function () {
     refund($this->orderId, ['amount_minor' => 1000, 'reason' => 'Geste commercial'])->assertCreated();
-    $url = "/api/v1/orders/{$this->orderId}/refunds";
+    $url = '/api/v1/orders/'.orderUuid($this->orderId).'/refunds';
 
     asGuest();
     $this->getJson($url)->assertUnauthorized();

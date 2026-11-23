@@ -44,5 +44,5 @@ it('keeps a guest away from other customers orders', function () {
     $this->app['auth']->forgetGuards();
 
     $this->withToken($guestToken)->getJson('/api/v1/orders')->assertOk()->assertJsonCount(0, 'data');
-    $this->withToken($guestToken)->getJson("/api/v1/orders/{$orderId}")->assertForbidden();
+    $this->withToken($guestToken)->getJson('/api/v1/orders/'.orderUuid($orderId))->assertForbidden();
 });

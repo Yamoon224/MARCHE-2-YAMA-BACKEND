@@ -23,7 +23,7 @@ function ledgerIsBalanced(): bool
 function cancelOrder(int $orderId, string $reason = 'Annulation test')
 {
     return test()->actingAs(User::factory()->role(Role::Admin)->create(), 'sanctum')
-        ->postJson("/api/v1/orders/{$orderId}/transitions", ['to' => 'cancelled', 'reason' => $reason]);
+        ->postJson('/api/v1/orders/'.orderUuid($orderId).'/transitions', ['to' => 'cancelled', 'reason' => $reason]);
 }
 
 function refundsOf(int $orderId)

@@ -32,8 +32,8 @@ it('filters by status', function () {
 it('forbids reading someone else\'s order', function () {
     $order = Order::factory()->forUser(User::factory()->create()->id)->create();
 
-    $this->actingAs(User::factory()->create(), 'sanctum')->getJson("/api/v1/orders/{$order->id}")->assertForbidden();
-    $this->actingAs(User::factory()->role(Role::Support)->create(), 'sanctum')->getJson("/api/v1/orders/{$order->id}")->assertOk();
+    $this->actingAs(User::factory()->create(), 'sanctum')->getJson('/api/v1/orders/'.orderUuid($order->id))->assertForbidden();
+    $this->actingAs(User::factory()->role(Role::Support)->create(), 'sanctum')->getJson('/api/v1/orders/'.orderUuid($order->id))->assertOk();
 });
 
 it('requires authentication to list orders', function () {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Claims\Http\Controllers;
 
+use App\Shared\PublicId;
 use App\Modules\Claims\Actions\DecideClaimAction;
 use App\Modules\Claims\Actions\OpenClaimAction;
 use App\Modules\Claims\Enums\ClaimResolution;
@@ -31,7 +32,7 @@ class ClaimController
         summary: 'Déclarer un produit manquant, abîmé, périmé ou non conforme (photos jointes)',
         security: [['sanctum' => []]],
         tags: ['Réclamations'],
-        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
         requestBody: new OA\RequestBody(required: true, content: new OA\MediaType(mediaType: 'multipart/form-data', schema: new OA\Schema(
             required: ['items'],
             properties: [
@@ -54,8 +55,10 @@ class ClaimController
             new OA\Response(response: 422, description: 'Délai dépassé, quantité ou photo invalide, réclamation déjà déposée'),
         ],
     )]
-    public function store(OpenClaimRequest $request, int $orderId, OpenClaimAction $action): JsonResponse
+    public function store(OpenClaimRequest $request, string $orderId, OpenClaimAction $action): JsonResponse
     {
+        $orderId = PublicId::resolveOrFail('orders', $orderId, 'Commande introuvable.'); // UUID public -> clé interne
+
         $user = $this->user($request);
 
         try {

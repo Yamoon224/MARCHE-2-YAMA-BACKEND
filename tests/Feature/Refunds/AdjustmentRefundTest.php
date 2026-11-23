@@ -83,7 +83,7 @@ it('keeps the delivery fee when an article is only half served', function () {
     ])->assertCreated();
     expect($order->json('data.total_minor'))->toBe(2400); // 900 + 1 500 de livraison
 
-    $orderId = $order->json('data.id');
+    $orderId = internalOrderId($order->json('data.id'));
     $paymentId = startPayment($customer, $orderId)->json('data.id');
     sendWebhook(webhookFor(Payment::findOrFail($paymentId)->provider_reference, 'succeeded', 2400, 'evt-fee'))->assertOk();
     $transition = app(TransitionOrderAction::class);

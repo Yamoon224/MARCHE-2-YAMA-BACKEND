@@ -20,7 +20,7 @@ function orderIn(OrderStatus $status, ?User $owner = null): Order
 
 function transition(User $user, Order $order, string $to, ?string $reason = null)
 {
-    return test()->actingAs($user, 'sanctum')->postJson("/api/v1/orders/{$order->id}/transitions", array_filter(['to' => $to, 'reason' => $reason]));
+    return test()->actingAs($user, 'sanctum')->postJson('/api/v1/orders/'.orderUuid($order->id).'/transitions', array_filter(['to' => $to, 'reason' => $reason]));
 }
 
 it('lets an order operator confirm a paid order and records who and when', function () {

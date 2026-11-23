@@ -43,4 +43,4 @@ Route::prefix('delivery')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->get('orders/{orderId}/tracking', [TrackingController::class, 'show'])->whereNumber('orderId');
+Route::middleware('auth:sanctum')->get('orders/{orderId}/tracking', [TrackingController::class, 'show'])->whereUuid('orderId');

@@ -6,6 +6,7 @@ namespace App\Modules\Orders\Models;
 
 use App\Modules\Orders\Database\Factories\OrderFactory;
 use App\Modules\Orders\Enums\OrderStatus;
+use App\Shared\Concerns\HasPublicUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Order extends Model
 {
     /** @use HasFactory<OrderFactory> */
-    use HasFactory;
+    use HasFactory, HasPublicUuid;
 
     protected $fillable = [
         'number', 'user_id', 'status', 'currency', 'subtotal_minor', 'delivery_fee_minor',

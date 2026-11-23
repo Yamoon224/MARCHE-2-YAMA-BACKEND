@@ -154,7 +154,7 @@ class OrderController
         summary: 'Détail d\'une commande : lignes, historique et, pour le personnel, client, paiements, remboursements et livraison',
         security: [['sanctum' => []]],
         tags: ['Commandes'],
-        parameters: [new OA\Parameter(name: 'order', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        parameters: [new OA\Parameter(name: 'order', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
         responses: [
             new OA\Response(response: 200, description: 'Commande (schéma OrderDetail pour le personnel)', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/OrderDetail')])),
             new OA\Response(response: 403, description: 'Interdit'),
@@ -190,7 +190,7 @@ class OrderController
         summary: 'Changer le statut d\'une commande (machine à états)',
         security: [['sanctum' => []]],
         tags: ['Commandes'],
-        parameters: [new OA\Parameter(name: 'order', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        parameters: [new OA\Parameter(name: 'order', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
         requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
             required: ['to'],
             properties: [

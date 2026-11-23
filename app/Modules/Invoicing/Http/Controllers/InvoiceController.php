@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Invoicing\Http\Controllers;
 
+use App\Shared\PublicId;
 use App\Modules\Identity\Contracts\PermissionHolder;
 use App\Modules\Invoicing\Http\Resources\InvoiceResource;
 use App\Modules\Invoicing\Models\Invoice;
@@ -17,14 +18,16 @@ class InvoiceController
         summary: 'Facture d\'une commande payée',
         security: [['sanctum' => []]],
         tags: ['Facturation'],
-        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
         responses: [
             new OA\Response(response: 200, description: 'Facture', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/Invoice')])),
             new OA\Response(response: 404, description: 'Aucune facture pour cette commande'),
         ],
     )]
-    public function show(Request $request, int $orderId): InvoiceResource
+    public function show(Request $request, string $orderId): InvoiceResource
     {
+        $orderId = PublicId::resolveOrFail('orders', $orderId, 'Commande introuvable.'); // UUID public -> clé interne
+
         $user = $request->user();
         abort_unless($user instanceof PermissionHolder, 401);
 

@@ -6,12 +6,12 @@ use App\Modules\Payments\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('orders/{orderId}/payments', [PaymentController::class, 'store'])->whereNumber('orderId')->middleware('throttle:30,1');
+    Route::post('orders/{orderId}/payments', [PaymentController::class, 'store'])->whereUuid('orderId')->middleware('throttle:30,1');
     Route::post('payments/{payment}/validate-cash-on-delivery', [PaymentController::class, 'validateCashOnDelivery'])
         ->middleware('permission:orders.manage');
 
-    Route::get('orders/{orderId}/refunds', [RefundController::class, 'index'])->whereNumber('orderId');
-    Route::post('orders/{orderId}/refunds', [RefundController::class, 'store'])->whereNumber('orderId')
+    Route::get('orders/{orderId}/refunds', [RefundController::class, 'index'])->whereUuid('orderId');
+    Route::post('orders/{orderId}/refunds', [RefundController::class, 'store'])->whereUuid('orderId')
         ->middleware(['permission:payments.refund', 'throttle:30,1']);
 });
 

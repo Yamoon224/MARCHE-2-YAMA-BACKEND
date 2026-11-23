@@ -26,8 +26,9 @@ function placeOrder(int $quantity, ?User $as = null): TestResponse
     ]);
 }
 
-function move(int $orderId, string $to, ?string $reason = null): void
+function move(int|string $orderId, string $to, ?string $reason = null): void
 {
+    $orderId = is_string($orderId) ? internalOrderId($orderId) : $orderId;
     app(TransitionOrderAction::class)->execute(Order::findOrFail($orderId), OrderStatus::from($to), null, $reason);
 }
 
@@ -68,15 +69,15 @@ it('rolls back every line when one of them lacks stock', function () {
 });
 
 it('releases the stock when the order is cancelled', function () {
-    $id = placeOrder(4)->json('data.id');
+    $id = internalOrderId(placeOrder(4)->json('data.id'));
 
-    $this->actingAs($this->admin, 'sanctum')->postJson("/api/v1/orders/{$id}/transitions", ['to' => 'cancelled', 'reason' => 'Test'])->assertOk();
+    $this->actingAs($this->admin, 'sanctum')->postJson('/api/v1/orders/'.orderUuid($id).'/transitions', ['to' => 'cancelled', 'reason' => 'Test'])->assertOk();
 
     expect($this->lot->refresh()->quantity_reserved)->toBe(0)->and(StockReservation::count())->toBe(0);
 });
 
 it('keeps the reservation without expiry once the order is paid', function () {
-    $id = placeOrder(4)->json('data.id');
+    $id = internalOrderId(placeOrder(4)->json('data.id'));
     move($id, 'paid');
 
     expect(StockReservation::whereNotNull('expires_at')->count())->toBe(0)
@@ -84,7 +85,7 @@ it('keeps the reservation without expiry once the order is paid', function () {
 });
 
 it('removes the stock physically on delivery and records a sale movement', function () {
-    $id = placeOrder(4)->json('data.id');
+    $id = internalOrderId(placeOrder(4)->json('data.id'));
     foreach (['paid', 'confirmed', 'preparing', 'ready', 'assigned', 'out_for_delivery', 'delivered'] as $status) {
         move($id, $status);
     }
@@ -96,7 +97,7 @@ it('removes the stock physically on delivery and records a sale movement', funct
 });
 
 it('puts the stock back when the delivery ends in a return to the store', function () {
-    $id = placeOrder(4)->json('data.id');
+    $id = internalOrderId(placeOrder(4)->json('data.id'));
     foreach (['paid', 'confirmed', 'preparing', 'ready', 'assigned', 'out_for_delivery'] as $status) {
         move($id, $status);
     }
@@ -107,8 +108,8 @@ it('puts the stock back when the delivery ends in a return to the store', functi
 });
 
 it('cancels unpaid orders after the payment window and frees their stock', function () {
-    $unpaid = placeOrder(3)->json('data.id');
-    $paid = placeOrder(2)->json('data.id');
+    $unpaid = internalOrderId(placeOrder(3)->json('data.id'));
+    $paid = internalOrderId(placeOrder(2)->json('data.id'));
     move($paid, 'paid');
 
     $this->travel(config('orders.payment_window_minutes') + 1)->minutes();
@@ -127,7 +128,7 @@ it('does not expire orders still inside the payment window', function () {
 });
 
 it('is idempotent: replaying a cancellation does not release twice', function () {
-    $id = placeOrder(4)->json('data.id');
+    $id = internalOrderId(placeOrder(4)->json('data.id'));
     placeOrder(2);
     move($id, 'cancelled', 'Test');
 

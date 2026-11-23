@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Fulfillment\Http\Resources;
 
+use App\Shared\PublicId;
 use App\Modules\Fulfillment\Models\PickList;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -23,7 +24,7 @@ use OpenApi\Attributes as OA;
 ])]
 #[OA\Schema(schema: 'PickList', required: ['id', 'order_id', 'status', 'lines'], properties: [
     new OA\Property(property: 'id', type: 'integer'),
-    new OA\Property(property: 'order_id', type: 'integer'),
+    new OA\Property(property: 'order_id', type: 'string', format: 'uuid'),
     new OA\Property(property: 'status', type: 'string', enum: ['open', 'in_progress', 'completed']),
     new OA\Property(property: 'picker_id', type: 'integer', nullable: true),
     new OA\Property(property: 'lines', type: 'array', items: new OA\Items(ref: '#/components/schemas/PickLine')),
@@ -38,7 +39,7 @@ class PickListResource extends JsonResource
 
         return [
             'id' => $list->id,
-            'order_id' => $list->order_id,
+            'order_id' => PublicId::uuid('orders', $list->order_id),
             'status' => $list->status->value,
             'picker_id' => $list->picker_id,
             'lines' => $list->lines->map(fn ($l) => [

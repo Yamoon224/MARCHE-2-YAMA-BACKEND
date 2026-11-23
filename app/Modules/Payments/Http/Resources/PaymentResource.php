@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Payments\Http\Resources;
 
+use App\Shared\PublicId;
 use App\Modules\Payments\Enums\PaymentStatus;
 use App\Modules\Payments\Models\Payment;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(schema: 'Payment', required: ['id', 'reference', 'order_id', 'method', 'status', 'amount_minor', 'currency'], properties: [
     new OA\Property(property: 'id', type: 'integer'),
     new OA\Property(property: 'reference', type: 'string'),
-    new OA\Property(property: 'order_id', type: 'integer'),
+    new OA\Property(property: 'order_id', type: 'string', format: 'uuid'),
     new OA\Property(property: 'method', type: 'string', enum: ['mobile_money', 'card', 'cash_on_delivery']),
     new OA\Property(property: 'status', type: 'string', enum: ['pending', 'pending_on_delivery', 'succeeded', 'failed', 'flagged']),
     new OA\Property(property: 'amount_minor', type: 'integer'),
@@ -31,7 +32,7 @@ class PaymentResource extends JsonResource
         return [
             'id' => $payment->id,
             'reference' => $payment->reference,
-            'order_id' => $payment->order_id,
+            'order_id' => PublicId::uuid('orders', $payment->order_id),
             'method' => $payment->method->value,
             'status' => $payment->status->value,
             'amount_minor' => $payment->amount_minor,

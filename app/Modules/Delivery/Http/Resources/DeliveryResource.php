@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 
 #[OA\Schema(schema: 'Delivery', required: ['id', 'order_id', 'status', 'cash_due_minor'], properties: [
     new OA\Property(property: 'id', type: 'integer'),
-    new OA\Property(property: 'order_id', type: 'integer'),
+    new OA\Property(property: 'order_id', type: 'string', format: 'uuid'),
     new OA\Property(property: 'status', type: 'string', enum: ['pending', 'assigned', 'out_for_delivery', 'delivered', 'failed', 'returned']),
     new OA\Property(property: 'courier_id', type: 'integer', nullable: true),
     new OA\Property(property: 'courier_name', type: 'string', nullable: true),

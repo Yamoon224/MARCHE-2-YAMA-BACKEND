@@ -89,11 +89,12 @@ final class PlaceOrderAction
                 $this->delivery->bookSlot($delivery->slotId, $delivery->zoneId, $order->id);
             }
 
-            // $this->stock->reserve(
-            //     "order:{$order->id}",
-            //     $quantities,
-            //     now()->addMinutes((int) config('orders.payment_window_minutes')),
-            // );
+            // Seuls les produits dont le stock est géré (track_stock) sont réservés ; les autres se commandent librement.
+            $this->stock->reserve(
+                "order:{$order->id}",
+                $quantities,
+                now()->addMinutes((int) config('orders.payment_window_minutes')),
+            );
 
             OrderStatusHistory::create([
                 'order_id' => $order->id, 'from_status' => null,

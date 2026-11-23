@@ -34,3 +34,18 @@ function stockUp(Product $product, int $quantity, ?string $expiresOn = null): St
         'expires_on' => $expiresOn ?? now()->addDays(10)->toDateString(),
     ]);
 }
+
+
+/** UUID public d'une commande, à partir de sa clé interne (ou d'un UUID déjà public, renvoyé tel quel). */
+function orderUuid(int|string $id): string
+{
+    return is_int($id) || ctype_digit((string) $id)
+        ? (string) \Illuminate\Support\Facades\DB::table('orders')->where('id', (int) $id)->value('uuid')
+        : (string) $id;
+}
+
+/** Clé interne d'une commande à partir de son UUID public (les tests manipulent les clés internes). */
+function internalOrderId(string $uuid): int
+{
+    return (int) \Illuminate\Support\Facades\DB::table('orders')->where('uuid', $uuid)->value('id');
+}

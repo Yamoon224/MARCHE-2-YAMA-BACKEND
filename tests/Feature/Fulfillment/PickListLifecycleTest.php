@@ -10,9 +10,9 @@ use App\Modules\Orders\Models\Order;
 it('creates the pick list when the order goes into preparation, and not before', function () {
     $rice = pieceProduct();
     $customer = User::factory()->create();
-    $orderId = test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', [
+    $orderId = internalOrderId(test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', [
         'items' => [['product_id' => $rice->id, 'quantity' => 2]],
-    ])->json('data.id');
+    ])->json('data.id'));
 
     expect(PickList::count())->toBe(0);
 
@@ -131,7 +131,7 @@ it('cannot mark a preparing order ready through the orders API, whatever the rol
 
     foreach ([Role::Picker, Role::OrderOperator, Role::Admin] as $role) {
         $this->actingAs(staffUser($role), 'sanctum')
-            ->postJson("/api/v1/orders/{$ctx['order']->id}/transitions", ['to' => 'ready'])
+            ->postJson('/api/v1/orders/'.orderUuid($ctx['order']->id).'/transitions', ['to' => 'ready'])
             ->assertUnprocessable()->assertJsonValidationErrors('to');
     }
 

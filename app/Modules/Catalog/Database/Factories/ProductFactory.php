@@ -29,6 +29,7 @@ class ProductFactory extends Factory
             'price_minor' => fake()->numberBetween(100, 20000),
             'vat_rate_bp' => 0,
             'perishable' => false,
+            'track_stock' => true,
             'is_active' => true,
         ];
     }

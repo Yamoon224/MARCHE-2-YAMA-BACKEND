@@ -84,7 +84,7 @@ it('hides other customers\' orders and unknown orders behind a 404', function ()
     openClaim($this->ctx['customer'], 999_999, [claimItem($this->milkLine, 'missing')])->assertNotFound();
 
     asGuest();
-    $this->post("/api/v1/orders/{$this->ctx['order']->id}/claims", [], ['Accept' => 'application/json'])->assertUnauthorized();
+    $this->post('/api/v1/orders/'.orderUuid($this->ctx['order']->id).'/claims', [], ['Accept' => 'application/json'])->assertUnauthorized();
     expect(Claim::count())->toBe(0);
 });
 

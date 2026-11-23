@@ -13,9 +13,9 @@ function awaitingPaymentOrder(int $quantity = 2, int $price = 2500, int $vatBp =
     $product = Product::factory()->create(['price_minor' => $price, 'vat_rate_bp' => $vatBp]);
     $lot = stockUp($product, 20);
 
-    $orderId = test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', [
+    $orderId = internalOrderId(test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', [
         'items' => [['product_id' => $product->id, 'quantity' => $quantity]],
-    ])->assertCreated()->json('data.id');
+    ])->assertCreated()->json('data.id'));
 
     return ['customer' => $customer, 'orderId' => $orderId, 'lot' => $lot, 'total' => $quantity * $price];
 }
@@ -32,10 +32,10 @@ function payOrder(array $ctx, string $eventId = 'evt-pay'): int
 }
 
 /** Démarre un paiement mobile money et retourne [paiement JSON, référence agrégateur]. */
-function startPayment(User $customer, int $orderId, string $method = 'mobile_money', ?string $key = null): TestResponse
+function startPayment(User $customer, int|string $orderId, string $method = 'mobile_money', ?string $key = null): TestResponse
 {
     return test()->actingAs($customer, 'sanctum')->postJson(
-        "/api/v1/orders/{$orderId}/payments",
+        '/api/v1/orders/'.orderUuid($orderId).'/payments',
         ['method' => $method],
         $key ? ['Idempotency-Key' => $key] : [],
     );

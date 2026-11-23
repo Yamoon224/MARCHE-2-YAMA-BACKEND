@@ -10,7 +10,7 @@ it('issues an invoice when the order is paid, with VAT extracted from the gross 
     $ctx = awaitingPaymentOrder(2, 5900, 1800); // 11 800 TTC dont 1 800 de TVA
     payOrder($ctx);
 
-    $this->actingAs($ctx['customer'], 'sanctum')->getJson("/api/v1/orders/{$ctx['orderId']}/invoice")
+    $this->actingAs($ctx['customer'], 'sanctum')->getJson('/api/v1/orders/'.orderUuid($ctx['orderId']).'/invoice')
         ->assertOk()
         ->assertJsonPath('data.number', sprintf('FAC-%d-000001', now()->year))
         ->assertJsonPath('data.total_minor', 11800)
@@ -24,7 +24,7 @@ it('does not issue an invoice before payment', function () {
     $ctx = awaitingPaymentOrder();
 
     expect(Invoice::count())->toBe(0);
-    $this->actingAs($ctx['customer'], 'sanctum')->getJson("/api/v1/orders/{$ctx['orderId']}/invoice")->assertNotFound();
+    $this->actingAs($ctx['customer'], 'sanctum')->getJson('/api/v1/orders/'.orderUuid($ctx['orderId']).'/invoice')->assertNotFound();
 });
 
 it('numbers invoices sequentially without gaps', function () {
@@ -73,7 +73,7 @@ it('keeps the invoice total equal to the order total', function () {
 it('shows an invoice only to its owner and authorised staff', function () {
     $ctx = awaitingPaymentOrder();
     payOrder($ctx);
-    $url = "/api/v1/orders/{$ctx['orderId']}/invoice";
+    $url = '/api/v1/orders/'.orderUuid($ctx['orderId']).'/invoice';
 
     asGuest();
     $this->getJson($url)->assertUnauthorized();

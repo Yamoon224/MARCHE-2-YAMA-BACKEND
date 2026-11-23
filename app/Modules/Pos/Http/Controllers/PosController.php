@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Pos\Http\Controllers;
 
+use App\Shared\PublicId;
 use App\Modules\Identity\Contracts\PermissionHolder;
 use App\Modules\Orders\Exceptions\InsufficientStock;
 use App\Modules\Orders\Exceptions\ProductNotOrderable;
@@ -46,7 +47,7 @@ use OpenApi\Attributes as OA;
 ])]
 #[OA\Schema(schema: 'PosSale', required: ['id', 'order_id', 'order_number', 'tender', 'total_minor', 'tendered_minor', 'change_minor', 'lines', 'created_at'], properties: [
     new OA\Property(property: 'id', type: 'integer'),
-    new OA\Property(property: 'order_id', type: 'integer'),
+    new OA\Property(property: 'order_id', type: 'string', format: 'uuid'),
     new OA\Property(property: 'order_number', type: 'string'),
     new OA\Property(property: 'tender', type: 'string', enum: ['cash', 'mobile_money', 'card']),
     new OA\Property(property: 'total_minor', type: 'integer'),
@@ -230,7 +231,7 @@ class PosController
     private function presentSale(PosSale $sale): array
     {
         return [
-            'id' => $sale->id, 'order_id' => $sale->order_id, 'order_number' => $sale->order_number, 'tender' => $sale->tender,
+            'id' => $sale->id, 'order_id' => PublicId::uuid('orders', $sale->order_id), 'order_number' => $sale->order_number, 'tender' => $sale->tender,
             'total_minor' => $sale->total_minor, 'tendered_minor' => $sale->tendered_minor, 'change_minor' => $sale->change_minor,
             'lines' => $sale->lines, 'created_at' => $sale->created_at->toIso8601String(),
         ];

@@ -80,6 +80,7 @@ class ProductAdminController
             'compare_at_price_minor' => ['nullable', 'integer', 'min:0'],
             'vat_rate_bp' => ['integer', 'min:0', 'max:10000'],
             'perishable' => ['boolean'],
+            'track_stock' => ['boolean'],
             'is_featured' => ['boolean'],
             'is_active' => ['boolean'],
         ]);

@@ -41,13 +41,13 @@ it('ignores prices sent by the client', function () {
 });
 
 it('keeps the price snapshot when the catalog price changes later', function () {
-    $id = $this->actingAs($this->customer, 'sanctum')->postJson('/api/v1/orders', [
+    $id = internalOrderId($this->actingAs($this->customer, 'sanctum')->postJson('/api/v1/orders', [
         'items' => [['product_id' => $this->rice->id, 'quantity' => 1]],
-    ])->json('data.id');
+    ])->json('data.id'));
 
     $this->rice->update(['price_minor' => 9999]);
 
-    $this->actingAs($this->customer, 'sanctum')->getJson("/api/v1/orders/{$id}")
+    $this->actingAs($this->customer, 'sanctum')->getJson('/api/v1/orders/'.orderUuid($id))
         ->assertOk()->assertJsonPath('data.total_minor', 5500)->assertJsonPath('data.lines.0.unit_price_minor', 5500);
 });
 
@@ -94,11 +94,11 @@ it('is idempotent with the same Idempotency-Key', function () {
 });
 
 it('records the initial status in the history', function () {
-    $id = $this->actingAs($this->customer, 'sanctum')->postJson('/api/v1/orders', [
+    $id = internalOrderId($this->actingAs($this->customer, 'sanctum')->postJson('/api/v1/orders', [
         'items' => [['product_id' => $this->rice->id, 'quantity' => 1]],
-    ])->json('data.id');
+    ])->json('data.id'));
 
-    $this->actingAs($this->customer, 'sanctum')->getJson("/api/v1/orders/{$id}")
+    $this->actingAs($this->customer, 'sanctum')->getJson('/api/v1/orders/'.orderUuid($id))
         ->assertJsonPath('data.history.0.to_status', 'awaiting_payment')
         ->assertJsonPath('data.history.0.from_status', null);
 });

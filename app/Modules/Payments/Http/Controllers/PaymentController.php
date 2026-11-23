@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Payments\Http\Controllers;
 
+use App\Shared\PublicId;
 use App\Modules\Payments\Actions\InitiatePaymentAction;
 use App\Modules\Payments\Actions\ValidateCashOnDeliveryAction;
 use App\Modules\Payments\Enums\PaymentMethod;
@@ -25,7 +26,7 @@ class PaymentController
         security: [['sanctum' => []]],
         tags: ['Paiements'],
         parameters: [
-            new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
             new OA\Parameter(name: 'Idempotency-Key', in: 'header', required: false, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
@@ -39,8 +40,10 @@ class PaymentController
             new OA\Response(response: 503, description: 'Paiement par carte indisponible (agrégateur non configuré ou injoignable)'),
         ],
     )]
-    public function store(InitiatePaymentRequest $request, int $orderId, InitiatePaymentAction $action): JsonResponse
+    public function store(InitiatePaymentRequest $request, string $orderId, InitiatePaymentAction $action): JsonResponse
     {
+        $orderId = PublicId::resolveOrFail('orders', $orderId, 'Commande introuvable.'); // UUID public -> clé interne
+
         $user = $request->user();
         abort_if($user === null, 401);
 

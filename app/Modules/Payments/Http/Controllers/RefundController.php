@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Payments\Http\Controllers;
 
+use App\Shared\PublicId;
 use App\Modules\Identity\Contracts\PermissionHolder;
 use App\Modules\Orders\Contracts\OrderPaymentPort;
 use App\Modules\Payments\Actions\RefundPaymentAction;
@@ -28,7 +29,7 @@ class RefundController
         summary: 'Remboursements d\'une commande',
         security: [['sanctum' => []]],
         tags: ['Paiements'],
-        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
         responses: [
             new OA\Response(response: 200, description: 'Remboursements et montant encore remboursable', content: new OA\JsonContent(
                 required: ['data', 'meta'],
@@ -42,8 +43,10 @@ class RefundController
             new OA\Response(response: 404, description: 'Commande introuvable'),
         ],
     )]
-    public function index(Request $request, int $orderId): AnonymousResourceCollection
+    public function index(Request $request, string $orderId): AnonymousResourceCollection
     {
+        $orderId = PublicId::resolveOrFail('orders', $orderId, 'Commande introuvable.'); // UUID public -> clé interne
+
         $user = $this->user($request);
         $order = $this->orders->findPayable($orderId);
 
@@ -60,7 +63,7 @@ class RefundController
         security: [['sanctum' => []]],
         tags: ['Paiements'],
         parameters: [
-            new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid')),
             new OA\Parameter(name: 'Idempotency-Key', in: 'header', required: false, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(
@@ -79,8 +82,10 @@ class RefundController
             new OA\Response(response: 422, description: 'Montant supérieur au remboursable'),
         ],
     )]
-    public function store(StoreRefundRequest $request, int $orderId, RefundPaymentAction $action): JsonResponse
+    public function store(StoreRefundRequest $request, string $orderId, RefundPaymentAction $action): JsonResponse
     {
+        $orderId = PublicId::resolveOrFail('orders', $orderId, 'Commande introuvable.'); // UUID public -> clé interne
+
         abort_if($this->orders->findPayable($orderId) === null, 404, 'Commande introuvable.');
 
         try {

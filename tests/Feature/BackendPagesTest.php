@@ -30,7 +30,7 @@ it('gives staff the customer, payments and delivery of an order, while customers
     $ctx = readyDeliveryOrder();
     $orderId = $ctx['order']->id;
 
-    $staff = $this->actingAs(User::factory()->role(Role::OrderOperator)->create(), 'sanctum')->getJson("/api/v1/orders/{$orderId}")->assertOk();
+    $staff = $this->actingAs(User::factory()->role(Role::OrderOperator)->create(), 'sanctum')->getJson('/api/v1/orders/'.orderUuid($orderId))->assertOk();
 
     $staff->assertJsonPath('data.customer.id', $ctx['customer']->id)
         ->assertJsonPath('data.customer.name', $ctx['customer']->name)
@@ -41,7 +41,7 @@ it('gives staff the customer, payments and delivery of an order, while customers
         ->assertJsonPath('data.delivery.status', 'pending')
         ->assertJsonStructure(['data' => ['lines', 'history', 'created_at', 'channel']]);
 
-    $own = $this->actingAs($ctx['customer'], 'sanctum')->getJson("/api/v1/orders/{$orderId}")->assertOk();
+    $own = $this->actingAs($ctx['customer'], 'sanctum')->getJson('/api/v1/orders/'.orderUuid($orderId))->assertOk();
     expect($own->json('data'))->not->toHaveKeys(['customer', 'payments', 'delivery'])
         ->and($own->json('data.lines'))->not->toBeEmpty();
 });
@@ -49,6 +49,6 @@ it('gives staff the customer, payments and delivery of an order, while customers
 it('returns empty payment and delivery sections for a pickup order without payment', function () {
     $order = Order::factory()->create();
 
-    $this->actingAs(User::factory()->role(Role::Admin)->create(), 'sanctum')->getJson("/api/v1/orders/{$order->id}")
+    $this->actingAs(User::factory()->role(Role::Admin)->create(), 'sanctum')->getJson('/api/v1/orders/'.orderUuid($order->id))
         ->assertOk()->assertJsonPath('data.payments', [])->assertJsonPath('data.delivery', null);
 });

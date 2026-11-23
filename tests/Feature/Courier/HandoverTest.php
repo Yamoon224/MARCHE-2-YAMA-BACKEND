@@ -103,7 +103,7 @@ it('hides the code once the delivery is over', function () {
     $courier = outForDelivery($ctx['delivery']);
     confirm($ctx['delivery'], $courier, $ctx['delivery']->confirmation_code)->assertOk();
 
-    $this->actingAs($ctx['customer'], 'sanctum')->getJson("/api/v1/orders/{$ctx['order']->id}/tracking")
+    $this->actingAs($ctx['customer'], 'sanctum')->getJson('/api/v1/orders/'.orderUuid($ctx['order']->id).'/tracking')
         ->assertOk()->assertJsonPath('data.status', 'delivered')->assertJsonPath('data.confirmation_code', null)->assertJsonPath('data.location', null);
 });
 

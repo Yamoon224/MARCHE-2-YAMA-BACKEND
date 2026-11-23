@@ -28,6 +28,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'is_featured', type: 'boolean', description: 'Produit mis en avant (best seller)'),
     new OA\Property(property: 'vat_rate_bp', type: 'integer', description: 'Taux de TVA en points de base'),
     new OA\Property(property: 'perishable', type: 'boolean'),
+    new OA\Property(property: 'track_stock', type: 'boolean', description: 'Faux : le produit se commande sans gestion de stock'),
     new OA\Property(property: 'is_active', type: 'boolean'),
     new OA\Property(property: 'deleted_at', type: 'string', nullable: true, description: 'Date de suppression douce (null : produit en ligne)'),
 ])]
@@ -73,6 +74,7 @@ class ProductResource extends JsonResource
             'is_featured' => $this->resource->is_featured,
             'vat_rate_bp' => $this->resource->vat_rate_bp,
             'perishable' => $this->resource->perishable,
+            'track_stock' => $this->resource->track_stock,
             'is_active' => $this->resource->is_active,
             'deleted_at' => $this->resource->deleted_at?->toIso8601String(),
         ];

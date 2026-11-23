@@ -1527,7 +1527,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -2953,7 +2954,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -4476,7 +4478,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -4897,7 +4900,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -4944,7 +4948,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -5015,7 +5020,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     },
                     {
@@ -5143,7 +5149,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -5204,7 +5211,8 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     },
                     {
@@ -6572,6 +6580,9 @@
                     "is_featured": {
                         "type": "boolean"
                     },
+                    "track_stock": {
+                        "type": "boolean"
+                    },
                     "is_active": {
                         "type": "boolean"
                     }
@@ -6752,6 +6763,10 @@
                         "type": "integer"
                     },
                     "perishable": {
+                        "type": "boolean"
+                    },
+                    "track_stock": {
+                        "description": "Faux : le produit se commande sans gestion de stock",
                         "type": "boolean"
                     },
                     "is_active": {
@@ -6975,7 +6990,8 @@
                         "type": "integer"
                     },
                     "order_id": {
-                        "type": "integer"
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "status": {
                         "type": "string",
@@ -7120,7 +7136,8 @@
                         "type": "integer"
                     },
                     "order_id": {
-                        "type": "integer"
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "status": {
                         "type": "string",
@@ -7318,7 +7335,8 @@
                         "type": "integer"
                     },
                     "order_id": {
-                        "type": "integer"
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "status": {
                         "type": "string",
@@ -7707,7 +7725,8 @@
                         "example": "FAC-2026-000001"
                     },
                     "order_id": {
-                        "type": "integer"
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "issued_at": {
                         "type": "string"
@@ -8007,7 +8026,9 @@
                 ],
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "description": "Identifiant public (UUID)",
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "number": {
                         "type": "string",
@@ -8159,7 +8180,8 @@
                         "type": "string"
                     },
                     "order_id": {
-                        "type": "integer"
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "method": {
                         "type": "string",
@@ -8213,7 +8235,8 @@
                         "type": "string"
                     },
                     "order_id": {
-                        "type": "integer"
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "amount_minor": {
                         "type": "integer"
@@ -8351,7 +8374,8 @@
                         "type": "integer"
                     },
                     "order_id": {
-                        "type": "integer"
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "order_number": {
                         "type": "string"

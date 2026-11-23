@@ -18,7 +18,7 @@ it('creates the delivery with a 6-digit code when a home delivery order becomes 
 it('creates no delivery for a store pickup order', function () {
     $product = pieceProduct();
     $customer = User::factory()->create();
-    $orderId = test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', ['items' => [['product_id' => $product->id, 'quantity' => 1]]])->json('data.id');
+    $orderId = internalOrderId(test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', ['items' => [['product_id' => $product->id, 'quantity' => 1]]])->json('data.id'));
 
     foreach ([OrderStatus::Paid, OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::Ready] as $status) {
         app(TransitionOrderAction::class)->execute(Order::findOrFail($orderId), $status, null);
@@ -121,7 +121,7 @@ it('blocks the delivery stages of a home delivery order in the general orders AP
     $ctx = readyDeliveryOrder();
     $admin = User::factory()->role(Role::Admin)->create();
 
-    $this->actingAs($admin, 'sanctum')->postJson("/api/v1/orders/{$ctx['order']->id}/transitions", ['to' => $to, 'reason' => 'test'])
+    $this->actingAs($admin, 'sanctum')->postJson('/api/v1/orders/'.orderUuid($ctx['order']->id).'/transitions', ['to' => $to, 'reason' => 'test'])
         ->assertUnprocessable()->assertJsonValidationErrors('to');
 
     expect(Order::find($ctx['order']->id)->status)->toBe(OrderStatus::Ready);
@@ -130,11 +130,11 @@ it('blocks the delivery stages of a home delivery order in the general orders AP
 it('still lets store pickup orders be handed over through the general API', function () {
     $product = pieceProduct();
     $customer = User::factory()->create();
-    $orderId = test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', ['items' => [['product_id' => $product->id, 'quantity' => 1]]])->json('data.id');
+    $orderId = internalOrderId(test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', ['items' => [['product_id' => $product->id, 'quantity' => 1]]])->json('data.id'));
     foreach ([OrderStatus::Paid, OrderStatus::Confirmed, OrderStatus::Preparing, OrderStatus::Ready] as $status) {
         app(TransitionOrderAction::class)->execute(Order::findOrFail($orderId), $status, null);
     }
 
     $this->actingAs(User::factory()->role(Role::Admin)->create(), 'sanctum')
-        ->postJson("/api/v1/orders/{$orderId}/transitions", ['to' => 'delivered'])->assertOk()->assertJsonPath('data.status', 'delivered');
+        ->postJson('/api/v1/orders/'.orderUuid($orderId).'/transitions', ['to' => 'delivered'])->assertOk()->assertJsonPath('data.status', 'delivered');
 });

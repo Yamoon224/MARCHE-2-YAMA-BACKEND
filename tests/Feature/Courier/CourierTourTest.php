@@ -16,7 +16,7 @@ it('shows a courier only his own deliveries, with what he needs on the doorstep'
 
     $response = $this->actingAs($me, 'sanctum')->getJson('/api/v1/delivery/my-tour')->assertOk()->assertJsonCount(1, 'data');
 
-    expect($response->json('data.0.order_id'))->toBe($mine['order']->id)
+    expect($response->json('data.0.order_id'))->toBe(orderUuid($mine['order']->id))
         ->and($response->json('data.0.phone'))->toBe('+2250700112233')
         ->and($response->json('data.0.address.landmark'))->toBe('Portail bleu')
         ->and($response->json('data.0.cash_due_minor'))->toBe(0); // déjà payée en ligne
@@ -32,7 +32,7 @@ it('orders the tour by delivery slot', function () {
     assignCourier($early['delivery'], $me)->assertOk();
 
     $this->actingAs($me, 'sanctum')->getJson('/api/v1/delivery/my-tour')
-        ->assertOk()->assertJsonPath('data.0.order_id', $early['order']->id)->assertJsonPath('data.1.order_id', $late['order']->id);
+        ->assertOk()->assertJsonPath('data.0.order_id', orderUuid($early['order']->id))->assertJsonPath('data.1.order_id', orderUuid($late['order']->id));
 });
 
 it('restricts the tour to couriers', function () {
@@ -108,7 +108,7 @@ it('validates coordinates', function (array $body) {
 it('shows the customer the live position, the courier and the code - and nobody else', function () {
     $ctx = readyDeliveryOrder();
     $courier = courierUser('Koffi');
-    $url = "/api/v1/orders/{$ctx['order']->id}/tracking";
+    $url = '/api/v1/orders/'.orderUuid($ctx['order']->id).'/tracking';
     $code = $ctx['delivery']->confirmation_code;
 
     $this->actingAs($ctx['customer'], 'sanctum')->getJson($url)
@@ -137,7 +137,7 @@ it('shows the customer the live position, the courier and the code - and nobody 
 it('gives no tracking for an order without home delivery', function () {
     $product = pieceProduct();
     $customer = User::factory()->create();
-    $orderId = test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', ['items' => [['product_id' => $product->id, 'quantity' => 1]]])->json('data.id');
+    $orderId = internalOrderId(test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', ['items' => [['product_id' => $product->id, 'quantity' => 1]]])->json('data.id'));
 
-    $this->actingAs($customer, 'sanctum')->getJson("/api/v1/orders/{$orderId}/tracking")->assertNotFound();
+    $this->actingAs($customer, 'sanctum')->getJson('/api/v1/orders/'.orderUuid($orderId).'/tracking')->assertNotFound();
 });

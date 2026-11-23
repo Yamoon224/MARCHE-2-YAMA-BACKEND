@@ -23,7 +23,7 @@ function deliveredOrder(array $lines): array
         'items' => array_map(fn ($l) => ['product_id' => $l['product']->id, 'quantity' => $l['quantity']], $lines),
     ])->assertCreated();
 
-    $orderId = $response->json('data.id');
+    $orderId = internalOrderId($response->json('data.id'));
     $total = $response->json('data.total_minor');
 
     $paymentId = startPayment($customer, $orderId)->assertCreated()->json('data.id');
@@ -53,7 +53,7 @@ function photo(string $name = 'preuve.jpg', int $kilobytes = 100): UploadedFile
 function openClaim(User $customer, int $orderId, array $items, array $photos = [], ?string $description = null)
 {
     return test()->actingAs($customer, 'sanctum')->post(
-        "/api/v1/orders/{$orderId}/claims",
+        '/api/v1/orders/'.orderUuid($orderId).'/claims',
         array_filter(['items' => $items, 'photos' => $photos ?: null, 'description' => $description]),
         ['Accept' => 'application/json'],
     );
@@ -78,9 +78,9 @@ function supportAgent(): User
 function awaitingPaymentOrderFor(Product $product, int $quantity): array
 {
     $customer = User::factory()->create();
-    $orderId = test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', [
+    $orderId = internalOrderId(test()->actingAs($customer, 'sanctum')->postJson('/api/v1/orders', [
         'items' => [['product_id' => $product->id, 'quantity' => $quantity]],
-    ])->assertCreated()->json('data.id');
+    ])->assertCreated()->json('data.id'));
 
     return ['order_id' => $orderId, 'customer' => $customer];
 }

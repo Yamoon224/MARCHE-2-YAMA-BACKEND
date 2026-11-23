@@ -22,7 +22,7 @@ class Product extends Model
 
     protected $fillable = [
         'category_id', 'sku', 'barcode', 'name', 'slug', 'description', 'image_url', 'sale_unit',
-        'is_weight_variable', 'price_minor', 'compare_at_price_minor', 'vat_rate_bp', 'perishable', 'is_featured', 'is_active',
+        'is_weight_variable', 'price_minor', 'compare_at_price_minor', 'vat_rate_bp', 'perishable', 'track_stock', 'is_featured', 'is_active',
     ];
 
     protected static function newFactory(): ProductFactory
@@ -36,6 +36,7 @@ class Product extends Model
             'sale_unit' => SaleUnit::class,
             'is_weight_variable' => 'boolean',
             'perishable' => 'boolean',
+            'track_stock' => 'boolean',
             'is_featured' => 'boolean',
             'compare_at_price_minor' => 'integer',
             'is_active' => 'boolean',

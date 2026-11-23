@@ -41,7 +41,7 @@ function readyDeliveryOrder(string $method = 'mobile_money', int $price = 5000, 
         ],
     ])->assertCreated();
 
-    $orderId = $response->json('data.id');
+    $orderId = internalOrderId($response->json('data.id'));
     $total = $response->json('data.total_minor');
 
     if ($method === 'cash_on_delivery') {

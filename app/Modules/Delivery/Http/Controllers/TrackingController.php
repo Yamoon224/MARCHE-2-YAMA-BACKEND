@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Delivery\Http\Controllers;
 
+use App\Shared\PublicId;
 use App\Modules\Delivery\Enums\DeliveryStatus;
 use App\Modules\Delivery\Models\Delivery;
 use App\Modules\Identity\Contracts\CourierDirectory;
@@ -25,7 +26,7 @@ class TrackingController
         summary: 'Suivi de livraison : statut, livreur, position en direct et code de confirmation (client uniquement)',
         security: [['sanctum' => []]],
         tags: ['Livraison'],
-        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
+        parameters: [new OA\Parameter(name: 'orderId', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))],
         responses: [
             new OA\Response(response: 200, description: 'Suivi', content: new OA\JsonContent(required: ['data'], properties: [
                 new OA\Property(property: 'data', type: 'object', required: ['status'], properties: [
@@ -42,8 +43,10 @@ class TrackingController
             new OA\Response(response: 404, description: 'Aucun suivi pour cette commande'),
         ],
     )]
-    public function show(Request $request, int $orderId): JsonResponse
+    public function show(Request $request, string $orderId): JsonResponse
     {
+        $orderId = PublicId::resolveOrFail('orders', $orderId, 'Commande introuvable.'); // UUID public -> clé interne
+
         $user = $request->user();
         abort_unless($user instanceof PermissionHolder, 401);
 

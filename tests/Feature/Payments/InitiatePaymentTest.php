@@ -11,7 +11,7 @@ it('creates a pending payment whose amount comes from the order', function () {
     ['customer' => $customer, 'orderId' => $orderId, 'total' => $total] = awaitingPaymentOrder(2, 2500);
 
     $this->actingAs($customer, 'sanctum')
-        ->postJson("/api/v1/orders/{$orderId}/payments", ['method' => 'mobile_money', 'amount_minor' => 1])
+        ->postJson('/api/v1/orders/'.orderUuid($orderId).'/payments', ['method' => 'mobile_money', 'amount_minor' => 1])
         ->assertCreated()
         ->assertJsonPath('data.status', 'pending')
         ->assertJsonPath('data.amount_minor', $total)
@@ -19,7 +19,7 @@ it('creates a pending payment whose amount comes from the order', function () {
 });
 
 it('requires authentication', function () {
-    $this->postJson('/api/v1/orders/1/payments', ['method' => 'card'])->assertUnauthorized();
+    $this->postJson('/api/v1/orders/00000000-0000-4000-8000-000000000000/payments', ['method' => 'card'])->assertUnauthorized();
 });
 
 it('validates the payment method', function () {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Claims\Http\Resources;
 
+use App\Shared\PublicId;
 use App\Modules\Claims\Models\Claim;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,7 +26,7 @@ use OpenApi\Attributes as OA;
 ])]
 #[OA\Schema(schema: 'Claim', required: ['id', 'order_id', 'status', 'claimable_minor', 'refund_amount_minor', 'refund_completed', 'items', 'photos'], properties: [
     new OA\Property(property: 'id', type: 'integer'),
-    new OA\Property(property: 'order_id', type: 'integer'),
+    new OA\Property(property: 'order_id', type: 'string', format: 'uuid'),
     new OA\Property(property: 'status', type: 'string', enum: ['open', 'accepted', 'rejected']),
     new OA\Property(property: 'description', type: 'string', nullable: true),
     new OA\Property(property: 'claimable_minor', type: 'integer', description: 'Plafond remboursable de toute la réclamation'),
@@ -49,7 +50,7 @@ class ClaimResource extends JsonResource
 
         return [
             'id' => $claim->id,
-            'order_id' => $claim->order_id,
+            'order_id' => PublicId::uuid('orders', $claim->order_id),
             'status' => $claim->status->value,
             'description' => $claim->description,
             'claimable_minor' => $claim->claimableMinor(),

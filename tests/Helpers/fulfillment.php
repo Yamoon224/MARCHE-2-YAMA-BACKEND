@@ -50,7 +50,7 @@ function orderInPreparation(array $lines): array
         ]), $lines),
     ])->assertCreated();
 
-    $orderId = $response->json('data.id');
+    $orderId = internalOrderId($response->json('data.id'));
     $total = $response->json('data.total_minor');
 
     $paymentId = startPayment($customer, $orderId)->assertCreated()->json('data.id');

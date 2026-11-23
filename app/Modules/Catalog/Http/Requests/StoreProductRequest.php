@@ -28,6 +28,7 @@ class StoreProductRequest extends FormRequest
             'is_featured' => ['boolean'],
             'vat_rate_bp' => ['integer', 'min:0', 'max:10000'],
             'perishable' => ['boolean'],
+            'track_stock' => ['boolean'],
             'is_active' => ['boolean'],
         ];
     }

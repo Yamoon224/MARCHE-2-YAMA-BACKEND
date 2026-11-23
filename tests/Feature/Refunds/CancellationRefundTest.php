@@ -40,7 +40,7 @@ it('shows the credit on the invoice, which itself stays unchanged', function () 
     payOrder($ctx);
     cancelOrder($ctx['orderId']);
 
-    $this->actingAs($ctx['customer'], 'sanctum')->getJson("/api/v1/orders/{$ctx['orderId']}/invoice")
+    $this->actingAs($ctx['customer'], 'sanctum')->getJson('/api/v1/orders/'.orderUuid($ctx['orderId']).'/invoice')
         ->assertOk()
         ->assertJsonPath('data.total_minor', 4000)
         ->assertJsonPath('data.credited_minor', 4000)
@@ -111,7 +111,7 @@ it('never credits more than was invoiced across several corrections', function (
     payOrder($ctx);
     $staff = User::factory()->role(Role::Support)->create();
 
-    $this->actingAs($staff, 'sanctum')->postJson("/api/v1/orders/{$ctx['orderId']}/refunds", ['amount_minor' => 3000, 'reason' => 'Geste commercial'])->assertCreated();
+    $this->actingAs($staff, 'sanctum')->postJson('/api/v1/orders/'.orderUuid($ctx['orderId']).'/refunds', ['amount_minor' => 3000, 'reason' => 'Geste commercial'])->assertCreated();
     cancelOrder($ctx['orderId'])->assertOk();
 
     expect(creditNotesOf($ctx['orderId'])->sum('total_minor'))->toBe(10_000)

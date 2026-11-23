@@ -98,7 +98,7 @@ it('frees the slot place when the order is cancelled', function () {
     $id = orderWithDelivery(2)->json('data.id');
     expect($this->slot->refresh()->booked)->toBe(1);
 
-    app(TransitionOrderAction::class)->execute(Order::findOrFail($id), OrderStatus::Cancelled, null, 'Test');
+    app(TransitionOrderAction::class)->execute(Order::where('uuid', $id)->firstOrFail(), OrderStatus::Cancelled, null, 'Test');
     app(TransitionOrderAction::class); // pas de second effet à rejouer
 
     expect($this->slot->refresh()->booked)->toBe(0)->and(SlotBooking::count())->toBe(0);

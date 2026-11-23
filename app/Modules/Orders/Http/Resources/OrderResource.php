@@ -28,7 +28,7 @@ use OpenApi\Attributes as OA;
     new OA\Property(property: 'created_at', type: 'string', nullable: true),
 ])]
 #[OA\Schema(schema: 'Order', required: ['id', 'status', 'total_minor'], properties: [
-    new OA\Property(property: 'id', type: 'integer'),
+    new OA\Property(property: 'id', type: 'string', format: 'uuid', description: 'Identifiant public (UUID)'),
     new OA\Property(property: 'number', type: 'string', nullable: true),
     new OA\Property(property: 'status', type: 'string', enum: [
         'draft', 'awaiting_payment', 'payment_failed', 'paid', 'under_review', 'confirmed', 'preparing', 'ready',
@@ -68,7 +68,7 @@ class OrderResource extends JsonResource
         $order = $this->resource;
 
         return [
-            'id' => $order->id,
+            'id' => $order->uuid,
             'number' => $order->number,
             'status' => $order->status->value,
             'currency' => $order->currency,

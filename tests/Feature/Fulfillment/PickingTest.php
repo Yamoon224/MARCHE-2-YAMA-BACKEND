@@ -284,7 +284,7 @@ it('records who prepared the order in its history', function () {
     pick($list, $list->lines->first()->id, 1);
     complete($list)->assertOk();
 
-    $this->actingAs($this->picker, 'sanctum')->getJson("/api/v1/orders/{$ctx['order']->id}")
+    $this->actingAs($this->picker, 'sanctum')->getJson('/api/v1/orders/'.orderUuid($ctx['order']->id))
         ->assertForbidden(); // le préparateur n'a pas accès au détail des commandes
 
     $last = Order::find($ctx['order']->id)->history->last();

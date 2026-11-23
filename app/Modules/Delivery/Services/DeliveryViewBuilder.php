@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Delivery\Services;
 
+use App\Shared\PublicId;
 use App\Modules\Delivery\Models\Delivery;
 use App\Modules\Delivery\Models\DeliverySlot;
 use App\Modules\Identity\Contracts\CourierDirectory;
@@ -27,7 +28,7 @@ final class DeliveryViewBuilder
 
         return [
             'id' => $delivery->id,
-            'order_id' => $delivery->order_id,
+            'order_id' => PublicId::uuid('orders', $delivery->order_id),
             'status' => $delivery->status->value,
             'courier_id' => $delivery->courier_id,
             'courier_name' => $delivery->courier_id !== null ? $this->couriers->nameOf($delivery->courier_id) : null,
