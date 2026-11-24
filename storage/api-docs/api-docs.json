@@ -711,6 +711,50 @@
                 ]
             }
         },
+        "/api/v1/catalog/products/import": {
+            "post": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Import en masse (lignes déjà lues depuis un CSV, XLSX ou SQL) : crée ou met à jour par référence ; `dry_run` simule sans rien enregistrer",
+                "operationId": "02c6cdff73c9c8b7f3b32f319b3ad220",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductImportRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compte rendu de l'import",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/ProductImportReport"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Requête invalide (trop de lignes…)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/v1/catalog/products/{product}": {
             "get": {
                 "tags": [
@@ -6585,6 +6629,180 @@
                     },
                     "is_active": {
                         "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductImportRow": {
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "row": {
+                        "description": "Numéro de ligne dans le fichier (pour le compte rendu)",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "sku": {
+                        "description": "Clé de rapprochement ; générée depuis external_id ou le nom si absente",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "external_id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "barcode": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "category": {
+                        "description": "Nom du rayon (créé s’il n’existe pas)",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "sale_unit": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "piece",
+                            "kg",
+                            "l"
+                        ]
+                    },
+                    "is_weight_variable": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "price_minor": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "compare_at_price_minor": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "vat_rate_bp": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "track_stock": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "images": {
+                        "description": "URL d’images (10 au plus)",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ProductImportRequest": {
+                "required": [
+                    "rows"
+                ],
+                "properties": {
+                    "rows": {
+                        "description": "5 000 lignes au plus",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProductImportRow"
+                        }
+                    },
+                    "dry_run": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductImportReport": {
+                "required": [
+                    "dry_run",
+                    "created",
+                    "updated",
+                    "failed",
+                    "categories_created",
+                    "errors",
+                    "warnings"
+                ],
+                "properties": {
+                    "dry_run": {
+                        "type": "boolean"
+                    },
+                    "created": {
+                        "type": "integer"
+                    },
+                    "updated": {
+                        "type": "integer"
+                    },
+                    "failed": {
+                        "type": "integer"
+                    },
+                    "categories_created": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "row",
+                                "name",
+                                "messages"
+                            ],
+                            "properties": {
+                                "row": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "messages": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "warnings": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "row",
+                                "name",
+                                "message"
+                            ],
+                            "properties": {
+                                "row": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"

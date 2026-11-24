@@ -10,6 +10,7 @@ use App\Modules\Catalog\Http\Resources\ProductResource;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\ProductImage;
 use App\Modules\Catalog\Services\ProductImageService;
+use App\Modules\Catalog\Services\ProductImporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -50,6 +51,20 @@ class ProductAdminController
     public function store(StoreProductRequest $request): JsonResponse
     {
         return (new ProductResource($this->images->create($request->validated())))->response()->setStatusCode(201);
+    }
+
+    #[OA\Post(path: '/api/v1/catalog/products/import', summary: "Import en masse (lignes déjà lues depuis un CSV, XLSX ou SQL) : crée ou met à jour par référence ; `dry_run` simule sans rien enregistrer", security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/ProductImportRequest')),
+        responses: [new OA\Response(response: 200, description: "Compte rendu de l'import", content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/ProductImportReport')])), new OA\Response(response: 422, description: 'Requête invalide (trop de lignes…)')])]
+    public function import(Request $request, ProductImporter $importer): JsonResponse
+    {
+        $data = $request->validate([
+            'rows' => ['required', 'array', 'min:1', 'max:'.ProductImporter::MAX_ROWS],
+            'rows.*' => ['array'],
+            'dry_run' => ['boolean'],
+        ]);
+
+        return response()->json(['data' => $importer->import($data['rows'], (bool) ($data['dry_run'] ?? false))]);
     }
 
     #[OA\Get(path: '/api/v1/catalog/products/{product}', summary: "Détails d'un produit (même supprimé) avec sa galerie", security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],

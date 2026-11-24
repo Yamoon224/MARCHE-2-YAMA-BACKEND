@@ -80,6 +80,33 @@ final class ProductImageService
         return $product->load('images');
     }
 
+    /**
+     * Rattache des images externes (URL) à la galerie, sans doublon ni dépassement de la limite ; la première devient la couverture si la galerie était vide.
+     *
+     * @param  list<string>  $urls
+     */
+    public function attachExternal(Product $product, array $urls): Product
+    {
+        return DB::transaction(function () use ($product, $urls) {
+            $existing = $product->images()->pluck('path')->all();
+            $position = (int) $product->images()->max('position') + 1;
+            $count = count($existing);
+
+            foreach (array_diff(array_unique($urls), $existing) as $url) {
+                if ($count >= self::MAX_IMAGES) {
+                    break;
+                }
+
+                $product->images()->create(['path' => $url, 'position' => $position++, 'is_cover' => $count === 0]);
+                $count++;
+            }
+
+            $this->syncCover($product);
+
+            return $product->load('images');
+        });
+    }
+
     /** @param  list<int>  $ids Identifiants des images dans le nouvel ordre (toutes les images du produit). */
     public function reorder(Product $product, array $ids): Product
     {
