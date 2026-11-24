@@ -722,7 +722,7 @@
                 "tags": [
                     "Catalogue (gestion)"
                 ],
-                "summary": "Vider le catalogue : supprime définitivement TOUS les produits (même supprimés) et leurs images. Administrateur seulement.",
+                "summary": "Vider le catalogue : supprime définitivement TOUS les produits (même supprimés), leurs images et les commandes qui les contiennent. Administrateur seulement.",
                 "operationId": "129f349d6e1d4498961fefb7b40e295c",
                 "requestBody": {
                     "required": true,
@@ -738,6 +738,13 @@
                                         "type": "string",
                                         "enum": [
                                             "VIDER"
+                                        ]
+                                    },
+                                    "confirm_orders": {
+                                        "description": "Obligatoire quand des commandes sont liées aux produits : confirme leur suppression",
+                                        "type": "string",
+                                        "enum": [
+                                            "SUPPRIMER"
                                         ]
                                     }
                                 },
@@ -756,6 +763,9 @@
                                         "data": {
                                             "properties": {
                                                 "deleted": {
+                                                    "type": "integer"
+                                                },
+                                                "orders_deleted": {
                                                     "type": "integer"
                                                 }
                                             },
@@ -816,6 +826,48 @@
                     },
                     "422": {
                         "description": "Requête invalide (trop de lignes…)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/catalog/products/purge-preview": {
+            "get": {
+                "tags": [
+                    "Catalogue (gestion)"
+                ],
+                "summary": "Ce que supprimerait « Vider le catalogue » : produits et commandes liées. Administrateur seulement.",
+                "operationId": "aef5204521906b5e08c1acf770367bd3",
+                "responses": {
+                    "200": {
+                        "description": "Décompte",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "products": {
+                                                    "type": "integer"
+                                                },
+                                                "orders": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Réservé aux administrateurs"
                     }
                 },
                 "security": [
