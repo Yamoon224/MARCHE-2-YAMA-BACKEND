@@ -25,6 +25,7 @@ class ProductAdminController
     #[OA\Get(path: '/api/v1/catalog/products', summary: 'Tous les produits (actifs ou non)', security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],
         parameters: [
             new OA\Parameter(name: 'q', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'category_id', in: 'query', description: 'Uniquement les produits de ce rayon', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'trashed', in: 'query', description: 'with : y compris supprimés ; only : uniquement les supprimés', schema: new OA\Schema(type: 'string', enum: ['with', 'only'])),
             new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'per_page', in: 'query', description: '1 à 200 (30 par défaut)', schema: new OA\Schema(type: 'integer')),
@@ -32,13 +33,14 @@ class ProductAdminController
         responses: [new OA\Response(response: 200, description: 'Produits paginés', content: new OA\JsonContent(ref: '#/components/schemas/ProductPage'))])]
     public function index(Request $request): AnonymousResourceCollection
     {
-        $request->validate(['trashed' => ['nullable', Rule::in(['with', 'only'])]]);
+        $request->validate(['trashed' => ['nullable', Rule::in(['with', 'only'])], 'category_id' => ['nullable', 'integer']]);
 
         return ProductResource::collection(
             Product::query()
                 ->with('images')
                 ->when($request->input('trashed') === 'with', fn ($q) => $q->withTrashed())
                 ->when($request->input('trashed') === 'only', fn ($q) => $q->onlyTrashed())
+                ->when($request->integer('category_id'), fn ($q, $id) => $q->where('category_id', $id))
                 ->when($request->string('q')->toString(), fn ($q, $term) => $q->where(fn ($w) => $w->where('name', 'like', '%'.$term.'%')->orWhere('sku', 'like', '%'.$term.'%')))
                 ->orderBy('name')
                 ->paginate(min(max($request->integer('per_page', 30), 1), 200)),

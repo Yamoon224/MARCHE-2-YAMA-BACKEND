@@ -89,3 +89,14 @@ it('refuses empty and oversized payloads', function () {
     $this->postJson('/api/v1/catalog/products/import', ['rows' => []])->assertUnprocessable();
     $this->postJson('/api/v1/catalog/products/import', ['rows' => array_fill(0, 5001, ['name' => 'x'])])->assertUnprocessable();
 });
+
+it('paginates the admin list and filters it by category', function () {
+    $this->actingAs(importer(), 'sanctum');
+    $a = Category::factory()->create();
+    $b = Category::factory()->create();
+    Product::factory()->count(3)->create(['category_id' => $a->id]);
+    Product::factory()->count(2)->create(['category_id' => $b->id]);
+
+    $this->getJson('/api/v1/catalog/products?per_page=2&page=2')->assertOk()->assertJsonCount(2, 'data')->assertJsonPath('meta.total', 5)->assertJsonPath('meta.last_page', 3);
+    $this->getJson("/api/v1/catalog/products?category_id={$b->id}")->assertOk()->assertJsonCount(2, 'data')->assertJsonPath('meta.total', 2);
+});

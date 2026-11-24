@@ -623,6 +623,14 @@
                         }
                     },
                     {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Uniquement les produits de ce rayon",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
                         "name": "trashed",
                         "in": "query",
                         "description": "with : y compris supprimés ; only : uniquement les supprimés",
