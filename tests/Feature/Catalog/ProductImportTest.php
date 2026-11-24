@@ -4,6 +4,7 @@ use App\Modules\Catalog\Models\Category;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Identity\Enums\Role;
 use App\Modules\Identity\Models\User;
+use Illuminate\Support\Facades\DB;
 
 function importer(): User
 {
@@ -99,4 +100,38 @@ it('paginates the admin list and filters it by category', function () {
 
     $this->getJson('/api/v1/catalog/products?per_page=2&page=2')->assertOk()->assertJsonCount(2, 'data')->assertJsonPath('meta.total', 5)->assertJsonPath('meta.last_page', 3);
     $this->getJson("/api/v1/catalog/products?category_id={$b->id}")->assertOk()->assertJsonCount(2, 'data')->assertJsonPath('meta.total', 2);
+});
+
+it('purges every product, images included, for administrators only', function () {
+    Product::factory()->count(3)->create();
+    Product::factory()->create()->delete();
+
+    $this->actingAs(importer(), 'sanctum')->deleteJson('/api/v1/catalog/products', ['confirm' => 'VIDER'])->assertForbidden();
+    expect(Product::withTrashed()->count())->toBe(4);
+
+    $this->actingAs(User::factory()->role(Role::Admin)->create(), 'sanctum');
+    $this->deleteJson('/api/v1/catalog/products', [])->assertUnprocessable();
+    $this->deleteJson('/api/v1/catalog/products', ['confirm' => 'VIDER'])->assertOk()->assertJsonPath('data.deleted', 4);
+    expect(Product::withTrashed()->count())->toBe(0);
+});
+
+it('deletes the orders linked to the products only after an explicit second confirmation, and never touches the ledger', function () {
+    $ctx = awaitingPaymentOrder();
+    payOrder($ctx);
+    $ledger = DB::table('journal_entries')->count();
+    expect($ledger)->toBeGreaterThan(0)->and(DB::table('invoices')->count())->toBe(1);
+
+    $this->actingAs(User::factory()->role(Role::Admin)->create(), 'sanctum');
+    $this->getJson('/api/v1/catalog/products/purge-preview')->assertOk()->assertJsonPath('data.products', 1)->assertJsonPath('data.orders', 1);
+
+    $this->deleteJson('/api/v1/catalog/products', ['confirm' => 'VIDER'])->assertUnprocessable()->assertJsonValidationErrors('confirm_orders');
+    expect(Product::count())->toBe(1)->and(DB::table('orders')->count())->toBe(1);
+
+    $this->deleteJson('/api/v1/catalog/products', ['confirm' => 'VIDER', 'confirm_orders' => 'SUPPRIMER'])
+        ->assertOk()->assertJsonPath('data.deleted', 1)->assertJsonPath('data.orders_deleted', 1);
+
+    foreach (['products', 'orders', 'order_lines', 'payments', 'invoices', 'invoice_lines', 'stock_reservations'] as $table) {
+        expect(DB::table($table)->count())->toBe(0, $table);
+    }
+    expect(DB::table('journal_entries')->count())->toBe($ledger);
 });

@@ -9,6 +9,7 @@ use App\Modules\Catalog\Http\Requests\StoreProductRequest;
 use App\Modules\Catalog\Http\Resources\ProductResource;
 use App\Modules\Catalog\Models\Product;
 use App\Modules\Catalog\Models\ProductImage;
+use App\Modules\Catalog\Services\CatalogPurger;
 use App\Modules\Catalog\Services\ProductImageService;
 use App\Modules\Catalog\Services\ProductImporter;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class ProductAdminController
@@ -55,7 +57,7 @@ class ProductAdminController
         return (new ProductResource($this->images->create($request->validated())))->response()->setStatusCode(201);
     }
 
-    #[OA\Post(path: '/api/v1/catalog/products/import', summary: "Import en masse (lignes déjà lues depuis un CSV, XLSX ou SQL) : crée ou met à jour par référence ; `dry_run` simule sans rien enregistrer", security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],
+    #[OA\Post(path: '/api/v1/catalog/products/import', summary: 'Import en masse (lignes déjà lues depuis un CSV, XLSX ou SQL) : crée ou met à jour par référence ; `dry_run` simule sans rien enregistrer', security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],
         requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/ProductImportRequest')),
         responses: [new OA\Response(response: 200, description: "Compte rendu de l'import", content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/ProductImportReport')])), new OA\Response(response: 422, description: 'Requête invalide (trop de lignes…)')])]
     public function import(Request $request, ProductImporter $importer): JsonResponse
@@ -67,6 +69,32 @@ class ProductAdminController
         ]);
 
         return response()->json(['data' => $importer->import($data['rows'], (bool) ($data['dry_run'] ?? false))]);
+    }
+
+    #[OA\Get(path: '/api/v1/catalog/products/purge-preview', summary: 'Ce que supprimerait « Vider le catalogue » : produits et commandes liées. Administrateur seulement.', security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],
+        responses: [new OA\Response(response: 200, description: 'Décompte', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', properties: [new OA\Property(property: 'products', type: 'integer'), new OA\Property(property: 'orders', type: 'integer')], type: 'object')])), new OA\Response(response: 403, description: 'Réservé aux administrateurs')])]
+    public function purgePreview(CatalogPurger $purger): JsonResponse
+    {
+        return response()->json(['data' => $purger->preview()]);
+    }
+
+    #[OA\Delete(path: '/api/v1/catalog/products', summary: 'Vider le catalogue : supprime définitivement TOUS les produits (même supprimés), leurs images et les commandes qui les contiennent. Administrateur seulement.', security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(required: ['confirm'], properties: [
+            new OA\Property(property: 'confirm', type: 'string', enum: ['VIDER'], description: 'Confirmation explicite'),
+            new OA\Property(property: 'confirm_orders', type: 'string', enum: ['SUPPRIMER'], description: 'Obligatoire quand des commandes sont liées aux produits : confirme leur suppression'),
+        ])),
+        responses: [new OA\Response(response: 200, description: 'Catalogue vidé', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', properties: [new OA\Property(property: 'deleted', type: 'integer'), new OA\Property(property: 'orders_deleted', type: 'integer')], type: 'object')])), new OA\Response(response: 403, description: 'Réservé aux administrateurs'), new OA\Response(response: 422, description: 'Confirmation absente')])]
+    public function purge(Request $request, CatalogPurger $purger): JsonResponse
+    {
+        $request->validate(['confirm' => ['required', Rule::in(['VIDER'])], 'confirm_orders' => ['nullable', Rule::in(['SUPPRIMER'])]]);
+
+        $withOrders = $request->input('confirm_orders') === 'SUPPRIMER';
+
+        if (! $withOrders && $purger->preview()['orders'] > 0) {
+            throw ValidationException::withMessages(['confirm_orders' => ['Des commandes contiennent ces produits : confirmez leur suppression.']]);
+        }
+
+        return response()->json(['data' => $purger->purge($withOrders)]);
     }
 
     #[OA\Get(path: '/api/v1/catalog/products/{product}', summary: "Détails d'un produit (même supprimé) avec sa galerie", security: [['sanctum' => []]], tags: ['Catalogue (gestion)'],

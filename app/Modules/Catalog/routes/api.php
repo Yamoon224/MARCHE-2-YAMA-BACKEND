@@ -22,6 +22,8 @@ Route::get('recipes', [RecipeController::class, 'index']);
 Route::prefix('catalog')->middleware(['auth:sanctum', 'permission:catalog.manage'])->group(function () {
     Route::get('products', [ProductAdminController::class, 'index']);
     Route::post('products', [ProductAdminController::class, 'store']);
+    Route::get('products/purge-preview', [ProductAdminController::class, 'purgePreview'])->middleware('permission:users.manage');
+    Route::delete('products', [ProductAdminController::class, 'purge'])->middleware('permission:users.manage');
     Route::post('products/import', [ProductAdminController::class, 'import']);
     Route::get('products/{product}', [ProductAdminController::class, 'show'])->whereNumber('product');
     Route::put('products/{product}', [ProductAdminController::class, 'update']);
